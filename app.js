@@ -173,9 +173,15 @@ class GeminiClone {
     }
 
     initializeAfterPageLoad() {
-        // ניקוי אירועים קיימים (למניעת כפילויות)
+        // עדכון pageConfig מתגית meta
+        const pageConfigMeta = document.querySelector('meta[name="page-config"]');
+        this.pageConfig = pageConfigMeta ? pageConfigMeta.getAttribute('content') : 'chat-page';
+        console.log(`Page config updated to: ${this.pageConfig}`); // דיבאג
+
+        // ניקוי אירועים קיימים
         this.removeEventListeners();
-        // אתחול מחדש של האלמנטים והאירועים
+
+        // אתחול אלמנטים ואירועים
         this.initializeElements();
         this.bindEvents();
         this.loadSettings();
@@ -184,11 +190,15 @@ class GeminiClone {
         this.loadLuxuryMode();
         this.initializeQuickActions();
         this.initializeExportOptions();
-        // עדכון הגדרות דף ספציפיות
+
+        // עדכון הגדרות דף ספציפיות (חייב להיות לאחר עדכון pageConfig)
         this.initializePageSpecificSettings();
+        console.log(`System prompt after initialization: ${this.systemPrompt}`); // דיבאג
+
         // רינדור היסטוריית צ'אט
         this.renderChatHistory();
-        // הסתרת כפתור עריכת כותרת צ'אט, אם קיים
+
+        // הסתרת כפתור עריכת כותרת צ'אט
         const editChatTitleBtn = document.getElementById('editChatTitleBtn');
         if (editChatTitleBtn) {
             editChatTitleBtn.style.display = 'none';
