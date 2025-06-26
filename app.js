@@ -542,9 +542,12 @@ class GeminiClone {
             const html = await response.text();
             // החלפת כל תוכן ה-body
             document.body.innerHTML = html;
+            // עדכון pageConfig עבור הדף החדש
+            this.pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content') || 'chat-page';
             // אתחול מחדש של האפליקציה
             this.initializeAfterPageLoad();
-
+            // איפוס הדף למסך הפתיחה
+            this.resetToWelcomeScreen();
             this.showToast(`הדמות נטענה בהצלחה`, 'success');
         } catch (error) {
             console.error('שגיאה בטעינת הדמות:', error.message);
