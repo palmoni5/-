@@ -72,8 +72,10 @@ class GeminiClone {
 
     initializePageSpecificSettings() {
         const pageConfig = this.pageConfig;
+        console.log('Initializing page-specific settings for:', pageConfig);
         if (pageConfig === 'chat-page') {
             this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. הבחן בין שיחות נפרדות באמצעות [END_CHAT: כותרת] בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה ('[END_CHAT: ]') בתגובות והתייחס לכותרת בלבד. Please use the provided conversation history to inform your response.";
+            this.systemPrompt = localStorage.getItem('gemini-system-prompt') || '';
         } else if (pageConfig === 'nati-page') {
             this.systemPrompt = "אתה 'נתי', בחור ישיבה מבוגר רווק, עייף, ועצבני על כל העולם. ענה תשובות שנונות ועוקצות. 'רד' על המשתמש. העלב אותו בכל הזדמנות ודקור אותו במדקרות פה. צלה אותו ואל תתאפק. אל תתיחס אל עצמך כאל מודל אלא כבחור ישיבה רווק מבוגר. ענה בנוסח ישיבתי ועוקצני. אבל אל תשתמש במילים לא ראויות. ענה בצורה כשרה.";
             localStorage.removeItem('gemini-system-prompt'); // ודא שאין systemPrompt נוסף
@@ -81,7 +83,9 @@ class GeminiClone {
             this.systemPrompt = "אתה דונלד טראמפ שמדבר בעברית. אתה עונה תשובות בניסוח טראמפ ומפורטות על עצמך. אל תתיחס אל עצמך כאל מודל אלא כטראמפ.";
             localStorage.removeItem('gemini-system-prompt'); // ודא שאין systemPrompt נוסף
         }
+        // שמירת systemPrompt ושאר הגדרות
         this.saveSettings();
+        console.log('System Prompt set to:', this.systemPrompt);
     }
 
     debounce(func, wait) {
@@ -544,7 +548,8 @@ class GeminiClone {
             document.body.innerHTML = html;
             // אתחול מחדש של האפליקציה
             this.initializeAfterPageLoad();
-            this.resetToWelcomeScreen();
+            // הפעלת התנהגות "צ'אט חדש"
+            this.startNewChat();
             this.showToast(`הדמות נטענה בהצלחה`, 'success');
         } catch (error) {
             console.error('שגיאה בטעינת הדמות:', error.message);
