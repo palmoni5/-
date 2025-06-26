@@ -544,10 +544,26 @@ class GeminiClone {
             document.body.innerHTML = html;
             // אתחול מחדש של האפליקציה
             this.initializeAfterPageLoad();
-            this.showToast(`הדף ${pageUrl} נטען בהצלחה`, 'success');
+            // הפעלת התנהגות "צ'אט חדש"
+            this.startNewChat();
+            this.showToast(`הדמות נטענה בהצלחה`, 'success');
         } catch (error) {
-            console.error('שגיאה בטעינת הדף:', error.message);
-            this.showToast(`שגיאה בטעינת הדף: ${error.message}`, 'error');
+            console.error('שגיאה בטעינת הדמות:', error.message);
+            // בדיקה אם השגיאה קשורה ל-CORS (חסימת קבצים)
+            if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+                try {
+                    // ניסיון להחליף כתובת בדפדפן
+                    window.location.href = pageUrl;
+                    // המתנה קצרה כדי לבדוק אם ההחלפה הצליחה
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    // אם הגענו לכאן, ההחלפה כנראה נכשלה
+                    throw new Error('החלפת כתובת נכשלה');
+                } catch (redirectError) {
+                    this.showToast(`שגיאה בטעינת הדמות: ${error.message}. ניסיון החלפת כתובת נכשל: ${redirectError.message}`, 'error');
+                }
+            } else {
+                this.showToast(`שגיאה בטעינת הדמות: ${error.message}`, 'error');
+            }
         }
     }
 
