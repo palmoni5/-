@@ -537,40 +537,10 @@ class GeminiClone {
 
     }
 
-    async loadNewPage(pageUrl) {
-        try {
-            const response = await fetch(pageUrl, { mode: 'cors' });
-            if (!response.ok) {
-                throw new Error(`שגיאה ${response.status}: לא ניתן לטעון את הדף`);
-            }
-            const html = await response.text();
-            // החלפת כל תוכן ה-body
-            document.body.innerHTML = html;
-            // עדכון pageConfig עבור הדף החדש
-            this.pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content') || 'chat-page';
-            // אתחול מחדש של האפליקציה
-            this.initializeAfterPageLoad();
-            this.resetToWelcomeScreen();
-            this.showToast(`הדמות נטענה בהצלחה`, 'success');
-        } catch (error) {
-            console.error('שגיאה בטעינת הדמות:', error.message);
-            // בדיקה אם השגיאה קשורה ל-CORS (חסימת קבצים)
-            if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
-                try {
-                    // ניסיון להחליף כתובת בדפדפן
-                    window.location.href = pageUrl;
-                    // המתנה קצרה כדי לבדוק אם ההחלפה הצליחה
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    // אם הגענו לכאן, ההחלפה כנראה נכשלה
-                    throw new Error('החלפת כתובת נכשלה');
-                } catch (redirectError) {
-                    this.showToast(`שגיאה בטעינת הדמות: ${error.message}. ניסיון החלפת כתובת נכשל: ${redirectError.message}`, 'error');
-                }
-            } else {
-                this.showToast(`שגיאה בטעינת הדמות: ${error.message}`, 'error');
-            }
-        }
+    loadNewPage(pageUrl) {
+        window.location.href = pageUrl;
     }
+
 
     initializeAfterPageLoad() {
         // ניקוי אירועים קיימים (למניעת כפילויות)
