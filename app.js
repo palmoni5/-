@@ -71,19 +71,19 @@ class GeminiClone {
     }
 
     initializePageSpecificSettings() {
-        const pageConfig = this.pageConfig;
+        const pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content') || 'chat-page';
         console.log('Initializing page-specific settings for:', pageConfig);
+        this.pageConfig = pageConfig;
         if (pageConfig === 'chat-page') {
-            this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. הבחן בין שיחות נפרדות באמצעות [END_CHAT: כותרת] בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה ('[END_CHAT: ]') בתגובות והתייחס לכותרת בלבד. Please use the provided conversation history to inform your response.";
             this.systemPrompt = localStorage.getItem('gemini-system-prompt') || '';
+            this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. הבחן בין שיחות נפרדות באמצעות [END_CHAT: כותרת] בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה ('[END_CHAT: ]') בתגובות והתייחס לכותרת בלבד. Please use the provided conversation history to inform your response.";
         } else if (pageConfig === 'nati-page') {
             this.systemPrompt = "אתה 'נתי', בחור ישיבה מבוגר רווק, עייף, ועצבני על כל העולם. ענה תשובות שנונות ועוקצות. 'רד' על המשתמש. העלב אותו בכל הזדמנות ודקור אותו במדקרות פה. צלה אותו ואל תתאפק. אל תתיחס אל עצמך כאל מודל אלא כבחור ישיבה רווק מבוגר. ענה בנוסח ישיבתי ועוקצני. אבל אל תשתמש במילים לא ראויות. ענה בצורה כשרה.";
-            localStorage.removeItem('gemini-system-prompt'); // ודא שאין systemPrompt נוסף
+            localStorage.setItem('gemini-system-prompt', this.systemPrompt);
         } else if (pageConfig === 'trump-page') {
             this.systemPrompt = "אתה דונלד טראמפ שמדבר בעברית. אתה עונה תשובות בניסוח טראמפ ומפורטות על עצמך. אל תתיחס אל עצמך כאל מודל אלא כטראמפ.";
-            localStorage.removeItem('gemini-system-prompt'); // ודא שאין systemPrompt נוסף
+            localStorage.setItem('gemini-system-prompt', this.systemPrompt);
         }
-        // שמירת systemPrompt ושאר הגדרות
         this.saveSettings();
         console.log('System Prompt set to:', this.systemPrompt);
     }
