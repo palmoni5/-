@@ -196,6 +196,8 @@ class GeminiClone {
         this.includeAllChatHistoryCheckbox = document.getElementById('includeAllChatHistory');
         this.historySidebar = document.querySelector('.history-sidebar');
         this.historyToggle = document.querySelector('.history-toggle');
+        this.loadOtherPageBtn = document.getElementById('loadOtherPageBtn');
+        this.loadOtherPageBtn = document.getElementById('loadOtherPageBtn') || null;
         
         // API & Model Settings
         this.geminiApiKey = document.getElementById('geminiApiKey');
@@ -362,6 +364,22 @@ class GeminiClone {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
         }
 
+        // הוספת אירוע ללחצן טעינת דף חדש
+        const loadOtherPageBtn = document.getElementById('loadOtherPageBtn');
+        if (loadOtherPageBtn) {
+            loadOtherPageBtn.addEventListener('click', () => {
+                const pageToLoad = loadOtherPageBtn.getAttribute('data-page') || 'other.html';
+                this.loadNewPage(pageToLoad);
+            });
+        }
+
+        document.querySelectorAll('.load-page-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pageToLoad = btn.getAttribute('data-page');
+                this.loadNewPage(pageToLoad);
+            });
+        });
+
         // History search
         if (this.historySearch) {
             this.historySearch.addEventListener('input', () => this.filterChatHistory());
@@ -513,6 +531,73 @@ class GeminiClone {
             console.warn('maxMessagesSelect element not found');
         }
 
+    }
+
+    async loadNewPage(pageUrl) {
+        try {
+            const response = await fetch(pageUrl, { mode: 'cors' });
+            if (!response.ok) {
+                throw new Error(`שגיאה ${response.status}: לא ניתן לטעון את הדף`);
+            }
+            const html = await response.text();
+            // החלפת כל תוכן ה-body
+            document.body.innerHTML = html;
+            // אתחול מחדש של האפליקציה
+            this.initializeAfterPageLoad();
+            this.showToast(`הדף ${pageUrl} נטען בהצלחה`, 'success');
+        } catch (error) {
+            console.error('שגיאה בטעינת הדף:', error.message);
+            this.showToast(`שגיאה בטעינת הדף: ${error.message}`, 'error');
+        }
+    }
+
+    initializeAfterPageLoad() {
+        // ניקוי אירועים קיימים (למניעת כפילויות)
+        this.removeEventListeners();
+        // אתחול מחדש של האלמנטים והאירועים
+        this.initializeElements();
+        this.bindEvents();
+        this.loadSettings();
+        this.setupAutoResize();
+        this.loadTheme();
+        this.loadLuxuryMode();
+        this.initializeQuickActions();
+        this.initializeExportOptions();
+        // עדכון הגדרות דף ספציפיות
+        this.initializePageSpecificSettings();
+        // רינדור היסטוריית צ'אט
+        this.renderChatHistory();
+        // הסתרת כפתור עריכת כותרת צ'אט, אם קיים
+        const editChatTitleBtn = document.getElementById('editChatTitleBtn');
+        if (editChatTitleBtn) {
+            editChatTitleBtn.style.display = 'none';
+        }
+    }
+
+    removeEventListeners() {
+        // הסרת מאזיני אירועים קיימים כדי למנוע כפילויות
+        const elements = [
+            this.sidebarToggle, this.newChatBtn, this.themeToggle, this.luxuryToggle,
+            this.clearHistoryBtn, this.exportBtn, this.hideLoadingOverlayCheckbox,
+            this.historySearch, this.exportHistoryBtn, this.importHistoryBtn,
+            this.includeAllChatHistoryCheckbox, this.historyToggle,
+            this.geminiApiKey, this.geminiModel, this.systemPromptInput,
+            this.systemPromptTemplateSelect, this.temperatureSlider, this.maxTokensSlider,
+            this.topPSlider, this.topKSlider, this.streamResponseCheckbox,
+            this.includeChatHistoryCheckbox, this.shareBtn, this.regenerateBtn,
+            this.messageInput, this.sendBtn, this.stopBtn, this.attachBtn, this.micBtn,
+            this.closeExportModal, this.cancelExport, this.confirmExport
+        ].filter(el => el);
+
+        elements.forEach(el => {
+            const clone = el.cloneNode(true);
+            el.parentNode.replaceChild(clone, el);
+        });
+    
+        // הסרת מאזיני אירועים גלובליים
+        document.removeEventListener('contextmenu', this.handleContextMenu);
+        document.removeEventListener('click', this.hideContextMenu);
+        document.removeEventListener('keydown', this.handleGlobalShortcuts);
     }
 
     updateIncludeAllChatHistory(checked) {
