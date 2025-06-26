@@ -548,8 +548,7 @@ class GeminiClone {
             document.body.innerHTML = html;
             // אתחול מחדש של האפליקציה
             this.initializeAfterPageLoad();
-            // הפעלת התנהגות "צ'אט חדש"
-            this.startNewChat();
+            this.resetToWelcomeScreen();
             this.showToast(`הדמות נטענה בהצלחה`, 'success');
         } catch (error) {
             console.error('שגיאה בטעינת הדמות:', error.message);
