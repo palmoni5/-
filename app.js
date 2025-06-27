@@ -367,13 +367,12 @@ class GeminiClone {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
         }
 
-        const loadOtherPageBtn = document.getElementById('loadOtherPageBtn');
-        if (loadOtherPageBtn) {
-            loadOtherPageBtn.addEventListener('click', () => {
-                const pageToLoad = loadOtherPageBtn.getAttribute('data-page') || 'other.html';
+        document.querySelectorAll('.load-page-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pageToLoad = btn.getAttribute('data-page');
                 this.loadNewPage(pageToLoad);
             });
-        }
+        });
 
         // History search
         if (this.historySearch) {
