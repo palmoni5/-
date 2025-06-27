@@ -70,9 +70,16 @@
 }
 
 .page-btn .material-icons {
-    font-size: 24px;
-    color: #333;
+    display: inline-block;
+    padding: 20px;
+    margin-top: 15px; 
+    color: white; 
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-heavy);
+    animation: logoFloat 4s ease-in-out infinite;
 }
+
 
 .page-img {
     width: 95%;
