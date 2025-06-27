@@ -200,7 +200,7 @@ class GeminiClone {
         this.includeAllChatHistoryCheckbox = document.getElementById('includeAllChatHistory');
         this.historySidebar = document.querySelector('.history-sidebar');
         this.historyToggle = document.querySelector('.history-toggle');
-        this.loadOtherPageBtn = document.getElementById('loadOtherPageBtn');
+        this.loadPageBtn = document.getElementById('loadPageBtn');
         
         // API & Model Settings
         this.geminiApiKey = document.getElementById('geminiApiKey');
