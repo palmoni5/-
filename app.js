@@ -71,21 +71,21 @@ class GeminiClone {
     }
 
     initializePageSpecificSettings() {
-        const pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content') || 'chat-page';
-        console.log('Initializing page-specific settings for:', pageConfig);
-        this.pageConfig = pageConfig;
+        const pageConfig = this.pageConfig;
         if (pageConfig === 'chat-page') {
-            this.systemPrompt = localStorage.getItem('gemini-system-prompt') || '';
             this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. הבחן בין שיחות נפרדות באמצעות [END_CHAT: כותרת] בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה ('[END_CHAT: ]') בתגובות והתייחס לכותרת בלבד. Please use the provided conversation history to inform your response.";
         } else if (pageConfig === 'nati-page') {
             this.systemPrompt = "אתה 'נתי', בחור ישיבה מבוגר רווק, עייף, ועצבני על כל העולם. ענה תשובות שנונות ועוקצות. 'רד' על המשתמש. העלב אותו בכל הזדמנות ודקור אותו במדקרות פה. צלה אותו ואל תתאפק. אל תתיחס אל עצמך כאל מודל אלא כבחור ישיבה רווק מבוגר. ענה בנוסח ישיבתי ועוקצני. אבל אל תשתמש במילים לא ראויות. ענה בצורה כשרה.";
-            localStorage.setItem('gemini-system-prompt', this.systemPrompt);
+            localStorage.removeItem('gemini-system-prompt'); // ודא שאין systemPrompt נוסף
         } else if (pageConfig === 'trump-page') {
             this.systemPrompt = "אתה דונלד טראמפ שמדבר בעברית. אתה עונה תשובות בניסוח טראמפ ומפורטות על עצמך. אל תתיחס אל עצמך כאל מודל אלא כטראמפ.";
-            localStorage.setItem('gemini-system-prompt', this.systemPrompt);
+            localStorage.removeItem('gemini-system-prompt'); // ודא שאין systemPrompt נוסף
         }
         this.saveSettings();
-        console.log('System Prompt set to:', this.systemPrompt);
+    }
+
+    loadNewPage(pageUrl) {
+        window.location.href = pageUrl;
     }
 
     debounce(func, wait) {
@@ -200,8 +200,6 @@ class GeminiClone {
         this.includeAllChatHistoryCheckbox = document.getElementById('includeAllChatHistory');
         this.historySidebar = document.querySelector('.history-sidebar');
         this.historyToggle = document.querySelector('.history-toggle');
-        this.loadOtherPageBtn = document.getElementById('loadOtherPageBtn');
-        this.loadOtherPageBtn = document.getElementById('loadOtherPageBtn') || null;
         
         // API & Model Settings
         this.geminiApiKey = document.getElementById('geminiApiKey');
@@ -368,22 +366,6 @@ class GeminiClone {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
         }
 
-        // הוספת אירוע ללחצן טעינת דף חדש
-        const loadOtherPageBtn = document.getElementById('loadOtherPageBtn');
-        if (loadOtherPageBtn) {
-            loadOtherPageBtn.addEventListener('click', () => {
-                const pageToLoad = loadOtherPageBtn.getAttribute('data-page') || 'other.html';
-                this.loadNewPage(pageToLoad);
-            });
-        }
-
-        document.querySelectorAll('.load-page-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const pageToLoad = btn.getAttribute('data-page');
-                this.loadNewPage(pageToLoad);
-            });
-        });
-
         // History search
         if (this.historySearch) {
             this.historySearch.addEventListener('input', () => this.filterChatHistory());
@@ -535,60 +517,6 @@ class GeminiClone {
             console.warn('maxMessagesSelect element not found');
         }
 
-    }
-
-    loadNewPage(pageUrl) {
-        window.location.href = pageUrl;
-    }
-
-
-    initializeAfterPageLoad() {
-        // ניקוי אירועים קיימים (למניעת כפילויות)
-        this.removeEventListeners();
-        // אתחול מחדש של האלמנטים והאירועים
-        this.initializeElements();
-        this.bindEvents();
-        this.loadSettings();
-        this.setupAutoResize();
-        this.loadTheme();
-        this.loadLuxuryMode();
-        this.initializeQuickActions();
-        this.initializeExportOptions();
-        // עדכון הגדרות דף ספציפיות
-        this.initializePageSpecificSettings();
-        // רינדור היסטוריית צ'אט
-        this.renderChatHistory();
-        // הסתרת כפתור עריכת כותרת צ'אט, אם קיים
-        const editChatTitleBtn = document.getElementById('editChatTitleBtn');
-        if (editChatTitleBtn) {
-            editChatTitleBtn.style.display = 'none';
-        }
-    }
-
-    removeEventListeners() {
-        // הסרת מאזיני אירועים קיימים כדי למנוע כפילויות
-        const elements = [
-            this.sidebarToggle, this.newChatBtn, this.themeToggle, this.luxuryToggle,
-            this.clearHistoryBtn, this.exportBtn, this.hideLoadingOverlayCheckbox,
-            this.historySearch, this.exportHistoryBtn, this.importHistoryBtn,
-            this.includeAllChatHistoryCheckbox, this.historyToggle,
-            this.geminiApiKey, this.geminiModel, this.systemPromptInput,
-            this.systemPromptTemplateSelect, this.temperatureSlider, this.maxTokensSlider,
-            this.topPSlider, this.topKSlider, this.streamResponseCheckbox,
-            this.includeChatHistoryCheckbox, this.shareBtn, this.regenerateBtn,
-            this.messageInput, this.sendBtn, this.stopBtn, this.attachBtn, this.micBtn,
-            this.closeExportModal, this.cancelExport, this.confirmExport
-        ].filter(el => el);
-
-        elements.forEach(el => {
-            const clone = el.cloneNode(true);
-            el.parentNode.replaceChild(clone, el);
-        });
-    
-        // הסרת מאזיני אירועים גלובליים
-        document.removeEventListener('contextmenu', this.handleContextMenu);
-        document.removeEventListener('click', this.hideContextMenu);
-        document.removeEventListener('keydown', this.handleGlobalShortcuts);
     }
 
     updateIncludeAllChatHistory(checked) {
