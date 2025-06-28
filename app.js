@@ -3,7 +3,7 @@ class GeminiClone {
         // מפת מילות מפתח ואייקונים עבור systemPrompt
         this.iconMap = {
             'בחור ישיבה מבוגר': {
-                iconPath: 'nati.jpg',
+                iconPath: 'nati/nati.jpg',
                 label: 'נתי',
                 likeMessage: 'סוף סוף אתה מדבר לעניין ויודע את מי להעריך...',
                 dislikeMessage: 'אתה לא מתבייש? לדסלייק אותי??? מי אתה בכלל???',
