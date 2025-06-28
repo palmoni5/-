@@ -4,7 +4,6 @@ class GeminiClone {
         this.iconMap = {
             'בחור ישיבה מבוגר': {
                 iconPath: 'nati.jpg',
-                iconPath: 'nati/nati.jpg',
                 label: 'נתי',
                 likeMessage: 'סוף סוף אתה מדבר לעניין ויודע את מי להעריך...',
                 dislikeMessage: 'אתה לא מתבייש? לדסלייק אותי??? מי אתה בכלל???',
@@ -12,7 +11,6 @@ class GeminiClone {
             },
             'טראמפ': {
                 iconPath: 'trump.jpg',
-                iconPath: 'trump/trump.jpg',
                 label: 'טראמפ',
                 likeMessage: 'תודה! אני תמיד צודק, כולם יודעים את זה.',
                 dislikeMessage: 'פייק ניוז! לגמרי פייק ניוז! הם פשוט מקנאים.',
