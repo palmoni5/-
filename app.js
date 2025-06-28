@@ -10,7 +10,7 @@ class GeminiClone {
                 feedbackAsAlert: true
             },
             'טראמפ': {
-                iconPath: 'trump.jpg',
+                iconPath: 'trump/trump.jpg',
                 label: 'טראמפ',
                 likeMessage: 'תודה! אני תמיד צודק, כולם יודעים את זה.',
                 dislikeMessage: 'פייק ניוז! לגמרי פייק ניוז! הם פשוט מקנאים.',
