@@ -12,7 +12,7 @@ class GeminiClone {
         // התחל מהתיקייה הראשית של הפרויקט (למשל, --main)
         const projectRootIndex = pathSegments.findIndex(segment => segment === '--main');
         const relativeSegments = projectRootIndex >= 0 ? pathSegments.slice(projectRootIndex + 1) : pathSegments;
-        const depth = relativeSegments.length; // עומק בתוך הפרויקט
+        let depth = relativeSegments.length; // עומק בתוך הפרויקט
         const isGitHubPages = window.location.hostname.includes('github.io');
         if (isGitHubPages && depth > 0) {
             depth -= 1;
