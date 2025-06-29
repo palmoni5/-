@@ -1,30 +1,47 @@
 class GeminiClone {
     constructor() {
+        let pathname = window.location.pathname;
+
+        // הסרת קידומת הכונן והתיקיות שמעל תיקיית הפרויקט
+        if (pathname.startsWith('/')) {
+            pathname = pathname.replace(/^\/+[A-Za-z]:\/|^\/+/, ''); // הסרת /C:/ או קידומת /
+        }
+
+        // מציאת תיקיית הפרויקט (למשל, --main) והתיקיות היחסיות בתוכו
+        const pathSegments = pathname.split('/').filter(segment => segment && segment !== 'index.html');
+        // התחל מהתיקייה הראשית של הפרויקט (למשל, --main)
+        const projectRootIndex = pathSegments.findIndex(segment => segment === '--main');
+        const relativeSegments = projectRootIndex >= 0 ? pathSegments.slice(projectRootIndex + 1) : pathSegments;
+        const depth = relativeSegments.length; // עומק בתוך הפרויקט
+        const imageBasePath = depth > 0 ? '../'.repeat(depth) : './';
+
+        console.log(`Raw pathname: ${window.location.pathname}, Cleaned pathname: ${pathname}, pathSegments: ${pathSegments}, relativeSegments: ${relativeSegments}, depth: ${depth}, imageBasePath: ${imageBasePath}`); // לוג לדיבוג
+
         // מפת מילות מפתח ואייקונים עבור systemPrompt
         this.iconMap = {
             'בחור ישיבה מבוגר': {
-                iconPath: 'nati.jpg',
+                iconPath: imageBasePath + 'nati.jpg',
                 label: 'נתי',
                 likeMessage: 'סוף סוף אתה מדבר לעניין ויודע את מי להעריך...',
                 dislikeMessage: 'אתה לא מתבייש? לדסלייק אותי??? מי אתה בכלל???',
                 feedbackAsAlert: true
             },
             'טראמפ': {
-                iconPath: 'trump.jpg',
+                iconPath: imageBasePath + 'trump.jpg',
                 label: 'טראמפ',
                 likeMessage: 'תודה! אני תמיד צודק, כולם יודעים את זה.',
                 dislikeMessage: 'פייק ניוז! לגמרי פייק ניוז! הם פשוט מקנאים.',
                 feedbackAsAlert: false
             },
             'פרעה': {
-                iconPath: 'Pharaoh.jpg',
+                iconPath: imageBasePath + 'Pharaoh.jpg',
                 label: 'פרעה',
                 likeMessage: 'כמים הפנים לפנים – כן תגובתך נעמה לנפשי.',
                 dislikeMessage: 'אם זאת תגובתך, מוטב כי תשתוק ולא תוסיף חטא על פשע.',
                 feedbackAsAlert: false
             },
             'אל תספק תשובות ישירות': {
-                iconPath: 'TheModernDream.jpg',
+                iconPath: imageBasePath + 'TheModernDream.jpg',
                 label: 'Gemini',
                 likeMessage: 'אתה באמת רואה את מה שמעבר? תודה על ההבנה העמוקה.',
                 dislikeMessage: 'האם יש משהו שחמק ממני? אולי נוכל לגלות זאת יחד, מעבר למילים.',
