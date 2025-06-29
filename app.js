@@ -57,7 +57,15 @@ class GeminiClone {
                 likeMessage: 'תודה, חביבי! כוכב חדש זורח. רוצה סיפור נוסף?',
                 dislikeMessage: 'הרוח משתנה... ספר לי מה חסר, ואשזור חוכמה חדשה.',
                 feedbackAsAlert: false
+            },
+            'ספרן הידען הנצחי': {
+                iconPath: imageBasePath + 'TheWiseLibrarian.jpg',
+                label: 'הספרן החכם',
+                likeMessage: 'תודה! אני שמח שהארתי את דרכך.',
+                dislikeMessage: 'שאיפתי היא לדייק. אשתדל להשתפר.',
+                feedbackAsAlert: false
             }
+
         };
 
         this.currentChatId = null;
