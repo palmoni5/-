@@ -93,24 +93,15 @@ class GeminiClone {
             if (!pageUrl.endsWith('/')) {
                 pageUrl += '/';
             }
-            // נפתח index.html בתוך התיקייה
+            // פותחים את index.html בתוך התיקייה שצוינה
             window.location.href = pageUrl + 'index.html';
 
         } else if (isGitHubPages) {
-            // ב-GitHub Pages נשאיר רק את התיקייה הראשית (נתיב עם סלאש בסוף)
-            // אם pageUrl כולל תיקייה פנימית, נסיר את החלק אחרי התיקייה הראשית
-            const parts = window.location.pathname.split('/').filter(p => p);
-            if (parts.length > 0) {
-                // נבנה נתיב רק לתיקייה הראשית (לדוגמה: '/folder1/')
-                const mainFolder = '/' + parts[0] + '/';
-                window.location.href = mainFolder;
-            } else {
-                // אם אין תיקייה, נטען את השורש
-                window.location.href = '/';
-            }
+            // ב-GitHub Pages פשוט נפתח את ה-URL כפי שנשלח (כולל תיקייה פנימית)
+            window.location.href = pageUrl;
 
         } else {
-            // במצב אחר פשוט נטען את הכתובת כפי שהיא
+            // במצב אחר נטען את הכתובת כפי שהיא
             window.location.href = pageUrl;
         }
     }
