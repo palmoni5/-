@@ -47,6 +47,7 @@
 
 .page-buttons {
     display: flex;
+    flex-wrap: wrap; /* מוסיף שבירת שורות אוטומטית */
     justify-content: center;
     gap: 16px;
 }
