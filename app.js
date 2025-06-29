@@ -85,7 +85,14 @@ class GeminiClone {
     }
 
     loadNewPage(pageUrl) {
-        window.location.href = pageUrl;
+        const isLocal = window.location.protocol === 'file:';
+        if (isLocal && pageUrl.endsWith('/')) {
+            // אם פועל מקומית ומדובר בתיקייה - הפנה לקובץ main.html מתוך התיקייה
+            window.location.href = pageUrl + 'index.html';
+        } else {
+            // אם ב-GitHub או URL רגיל - פתח את התיקייה כמו שהיא (index.html ייטען אוטומטית)
+            window.location.href = pageUrl;
+        }
     }
 
     debounce(func, wait) {
