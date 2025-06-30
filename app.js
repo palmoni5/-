@@ -2246,88 +2246,93 @@ class GeminiClone {
         }
     }
 
+    cleanFileName(name) {
+        // הסרת תווים לא חוקיים לשמות קבצים, שמירה על תווים עבריים
+        return name.replace(/[<>:"\/\\|?*\x00-\x1F]/g, '_').trim();
+    }
+
     exportToPdf(chat, includeTimestamps, includeSystemPrompts) {
-        // Using jsPDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
-        // Set up the document with RTL support
-        doc.setFont("Helvetica");
+
+        // שימוש בגופן מובנה תומך עברית (Helvetica)
+        doc.setFont('Helvetica', 'normal');
         doc.setFontSize(20);
-        doc.text(chat.title, 105, 20, { align: 'center' });
         
+        // כותרת הצ'אט, מיושר לימין
+        doc.text(chat.title, 190, 20, { align: 'right' });
+
         doc.setFontSize(12);
         let y = 40;
-        
-        // Add system prompt if requested
+
+        // הוספת System Prompt אם נבחר
         if (includeSystemPrompts && chat.systemPrompt) {
-            doc.setFont("Helvetica", "italic");
-            doc.text("System Prompt:", 20, y);
+            doc.setFont('Helvetica', 'italic');
+            doc.text('System Prompt:', 190, y, { align: 'right' });
             y += 7;
-            doc.setFont("Helvetica", "normal");
-            
+            doc.setFont('Helvetica', 'normal');
+
             const systemPromptLines = doc.splitTextToSize(chat.systemPrompt, 170);
-            doc.text(systemPromptLines, 20, y);
+            doc.text(systemPromptLines, 190, y, { align: 'right' });
             y += systemPromptLines.length * 7 + 10;
         }
-        
-        // Add each message
+
+        // הוספת כל ההודעות
         for (const msg of chat.messages) {
             const role = msg.role === 'user' ? 'אתה' : 'Gemini';
-            
-            doc.setFont("Helvetica", "bold");
-            doc.text(role, 20, y);
-            
+
+            doc.setFont('Helvetica', 'bold');
+            doc.text(role, 190, y, { align: 'right' });
+
             if (includeTimestamps) {
                 const time = new Date(msg.timestamp).toLocaleString('he-IL');
                 doc.setFontSize(8);
                 doc.setTextColor(100, 100, 100);
-                doc.text(time, 190, y, { align: 'right' });
+                doc.text(time, 20, y);
                 doc.setFontSize(12);
                 doc.setTextColor(0, 0, 0);
             }
-            
+
             y += 7;
-            
-            // Clean content (remove markdown and HTML)
+
+            // ניקוי התוכן עבור PDF
             const content = msg.content.replace(/```[\s\S]*?```/g, '[CODE BLOCK]')
-                                      .replace(/<[^>]*>/g, '')
-                                      .replace(/\!\[.*?\]\(.*?\)/g, '[IMAGE]')
-                                      .replace(/\[.*?\]\(.*?\)/g, '[LINK]');
-            
-            // Split text to fit page width
+                                   .replace(/<[^>]*>/g, '')
+                                   .replace(/\!\[.*?\]\(.*?\)/g, '[IMAGE]')
+                                   .replace(/\[.*?\]\(.*?\)/g, '[LINK]');
+
             const contentLines = doc.splitTextToSize(content, 170);
-            
-            // Check if we need a new page
+
             if (y + contentLines.length * 7 > 280) {
                 doc.addPage();
                 y = 20;
             }
-            
-            doc.setFont("Helvetica", "normal");
-            doc.text(contentLines, 20, y);
+
+            doc.setFont('Helvetica', 'normal');
+            doc.text(contentLines, 190, y, { align: 'right' });
             y += contentLines.length * 7 + 10;
-            
-            // Check if we need a new page for the next message
+
             if (y > 280) {
                 doc.addPage();
                 y = 20;
             }
         }
-        
-        // Add footer
+
+        // הוספת תחתית
         const date = new Date().toLocaleString('he-IL');
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
         doc.text(`יוצא ב: ${date}`, 20, 290);
-        doc.text("Gemini Clone", 190, 290, { align: 'right' });
-        
-        // Save the PDF
-        doc.save(`chat_${chat.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+        doc.text('Gemini Clone', 190, 290, { align: 'right' });
+
+        // שמירת הקובץ עם השם המעודכן: chat_Gemini_<שם_הצ'אט>
+        const cleanTitle = this.cleanFileName(chat.title);
+        doc.save(`chat_Gemini_${cleanTitle}.pdf`);
         this.showToast('הצ\'אט יוצא בהצלחה ל-PDF', 'success');
     }
 
-    exportToDocx(chat, includeTimestamps, includeSystemPrompts) {// יצירת HTML עם תאימות משופרת ל-Word
+    exportToDocx(chat, includeTimestamps, includeSystemPrompts) {
+        // יצירת HTML עם תאימות משופרת ל-Word
         let html = `<!DOCTYPE html>
         <html dir="rtl" lang="he">
         <head>
@@ -2341,7 +2346,7 @@ class GeminiClone {
                     margin: 2cm;
                 }
                 body { 
-                    font-family: 'Arial', 'David', sans-serif; 
+                    font-family: 'Arial', sans-serif; 
                     direction: rtl; 
                     line-height: 1.6; 
                     margin: 20px; 
@@ -2383,7 +2388,6 @@ class GeminiClone {
                     border-radius: 5px; 
                     margin-bottom: 20pt; 
                 }
-                /* סגנונות לעיצובי Markdown */
                 h1 { font-size: 18pt; font-weight: bold; margin: 10pt 0; }
                 h2 { font-size: 16pt; font-weight: bold; margin: 8pt 0; }
                 h3 { font-size: 14pt; font-weight: bold; margin: 6pt 0; }
@@ -2463,21 +2467,19 @@ class GeminiClone {
                 html += `<span class="timestamp">(${time})</span>`;
             }
 
-            // שימוש ב-formatMessageContent לעיבוד תוכן ההודעה עם תמיכה ב-Markdown
-            const formattedContent = this.formatMessageContent(msg.content);
-
             html += `</div>
-                <div class="content">${formattedContent}</div>
+                <div class="content">${this.formatMessageContent(msg.content)}</div>
             </div>`;
         }
 
         html += `</body></html>`;
 
         // יצירת Blob והורדה כקובץ doc
-        const blob = new Blob([html], { type: 'application/msword' });
+        const blob = new Blob([new TextEncoder().encode(html)], { type: 'application/msword' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `chat_${chat.title.replace(/[^a-zA-Z0-9]/g, '_')}.doc`;
+        const cleanTitle = this.cleanFileName(chat.title);
+        link.download = `chat_Gemini_${cleanTitle}.doc`;
         link.click();
 
         this.showToast('הצ\'אט יוצא בהצלחה ל-Word', 'success');
@@ -2485,31 +2487,32 @@ class GeminiClone {
 
     exportToText(chat, includeTimestamps, includeSystemPrompts) {
         let text = `${chat.title}\n\n`;
-        
+
         if (includeSystemPrompts && chat.systemPrompt) {
             text += `System Prompt: ${chat.systemPrompt}\n\n`;
         }
-        
+
         for (const msg of chat.messages) {
             const role = msg.role === 'user' ? 'אתה' : 'Gemini';
-            
+
             text += `${role}`;
-            
+
             if (includeTimestamps) {
                 const time = new Date(msg.timestamp).toLocaleString('he-IL');
                 text += ` (${time})`;
             }
-            
+
             text += `:\n${msg.content}\n\n`;
         }
-        
-        // Create a Blob and download
-        const blob = new Blob([text], { type: 'text/plain' });
+
+        // יצירת Blob והורדה
+        const blob = new Blob([new TextEncoder().encode(text)], { type: 'text/plain' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `chat_${chat.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+        const cleanTitle = this.cleanFileName(chat.title);
+        link.download = `chat_Gemini_${cleanTitle}.txt`;
         link.click();
-        
+
         this.showToast('הצ\'אט יוצא בהצלחה לטקסט', 'success');
     }
 
