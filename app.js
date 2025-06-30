@@ -488,6 +488,7 @@ class GeminiClone {
         if (defaultProfileOption) {
             defaultProfileOption.addEventListener('click', () => {
                 this.userProfileImage = null;
+                localStorage.setItem('use-custom-profile-image', 'false');
                 this.renderMessages();
                 this.profileImageMenu.style.display = 'none';
                 this.showToast('התמונה אופסה לברירת מחדל', 'success');
@@ -498,6 +499,7 @@ class GeminiClone {
             const storedImage = localStorage.getItem('user-profile-image');
             if (storedImage) {
                 this.userProfileImage = storedImage;
+                localStorage.setItem('use-custom-profile-image', 'true');
                 this.renderMessages();
                 this.profileImageMenu.style.display = 'none';
                 this.showToast('התמונה המותאמת הופעלה', 'success');
@@ -706,6 +708,9 @@ class GeminiClone {
     }
 
     exportHistoryAndSettings() {
+        const storedImage = localStorage.getItem('user-profile-image');
+        const useCustom = localStorage.getItem('use-custom-profile-image') === 'true';
+
         const data = {
             chats: this.chats,
             settings: {
@@ -717,7 +722,8 @@ class GeminiClone {
                 systemPromptTemplate: this.systemPromptTemplate,
                 isLuxuryMode: this.isLuxuryMode,
                 tokenLimitDisabled: this.tokenLimitDisabled,
-                userProfileImage: this.userProfileImage
+                userProfileImage: storedImage || null,
+                useCustomProfileImage: useCustom
             }
         };
 
@@ -729,6 +735,7 @@ class GeminiClone {
 
         this.showToast('היסטוריה והגדרות יוצאו בהצלחה', 'success');
     }
+
 
     handleImport() {
         const input = document.createElement('input');
@@ -862,6 +869,11 @@ class GeminiClone {
             localStorage.setItem('user-profile-image', this.userProfileImage);
         }
 
+        // שחזור סטטוס השימוש בתמונה מותאמת
+        const useCustom = data.settings.useCustomProfileImage === true;
+        localStorage.setItem('use-custom-profile-image', useCustom ? 'true' : 'false');
+        this.userProfileImage = useCustom ? data.settings.userProfileImage : null;
+
         // Save settings to localStorage
         localStorage.setItem('gemini-api-key', this.apiKey);
         localStorage.setItem('gemini-model', this.currentModel);
@@ -948,6 +960,10 @@ class GeminiClone {
                         applyTokenLimitState();
                 });
         }
+
+        const useCustom = localStorage.getItem('use-custom-profile-image') === 'true';
+        this.userProfileImage = useCustom ? localStorage.getItem('user-profile-image') : null;
+
 
         const historyCheckbox = document.getElementById('enableChatHistory');
         if (historyCheckbox) {
