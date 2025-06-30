@@ -72,6 +72,33 @@
     border: 2px solid #ccc;
 }
 
+.profile-default-avatar {
+    font-family: 'Google Sans', 'Roboto', sans-serif;
+    line-height: 1.6;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: var(--shadow-medium);
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.profile-avatar-image {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: var(--shadow-medium);
+    background: var(--gradient-primary);
+    padding: 2px; /* חשוב לשמור מרווח בין התמונה למסגרת */
+    box-sizing: border-box;
+}
+
 .mini-icon-btn {
     background: none;
     border: none;
@@ -136,19 +163,6 @@
     border-radius: 8px;
 }
 
-.user-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #ccc;
-}
-
-.profile-image-menu .user-avatar {
-    background: none;
-    border: none;
-    box-shadow: none;
-}
 
 .profile-image-menu .material-icons {
     width: 48px;
@@ -182,13 +196,6 @@
     color: #333;
 }
 
-.user-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: block;
-}
 
 /* עדכון סגנון message-avatar עבור תמונת פרופיל */
 .message-avatar {
@@ -1375,6 +1382,10 @@ body {
     color: var(--text-primary);
     transition: var(--transition);
     cursor: pointer;
+}
+
+.export-option span {
+    margin-bottom: 2px;
 }
 
 .export-option:hover {
