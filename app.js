@@ -524,6 +524,7 @@ class GeminiClone {
                 const base64 = await this.readFileAsBase64(file);
                 this.userProfileImage = base64;
                 localStorage.setItem('user-profile-image', base64);
+                localStorage.setItem('use-custom-profile-image', 'true');
                 this.renderMessages();
                 this.customProfilePreview.src = 'data:image/*;base64,' + base64;
                 this.customProfilePreview.style.display = 'inline-block';
