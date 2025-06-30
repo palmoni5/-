@@ -446,8 +446,88 @@ class GeminiClone {
             this.historySearch.addEventListener('input', () => this.debounceFilterChatHistory());
         }
 
+        this.customProfileOption = document.getElementById('customProfileOption');
+
         if (this.includeAllChatHistoryCheckbox) {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
+        }
+
+        this.profileImageBtn = document.getElementById('profileImageBtn');
+        this.profileImageMenu = document.getElementById('profileImageMenu');
+        this.profileImageInput = document.getElementById('profileImageInput');
+        this.customProfilePreview = document.getElementById('customProfilePreview');
+
+        const defaultProfileOption = document.getElementById('defaultProfileOption');
+        const customProfileOption = document.getElementById('customProfileOption');
+
+        // פתיחת התפריט
+        if (this.profileImageBtn && this.profileImageMenu) {
+            this.profileImageBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.profileImageMenu.style.display = 'flex';
+
+                const storedImage = localStorage.getItem('user-profile-image');
+                if (storedImage && this.customProfilePreview && this.customProfileOption) {
+                    this.customProfileOption.style.display = 'flex';
+                    this.customProfilePreview.src = 'data:image/*;base64,' + storedImage;
+                    this.customProfilePreview.style.display = 'inline-block';
+                } else if (this.customProfileOption) {
+                    this.customProfileOption.style.display = 'none';
+                }
+            });
+        }
+
+        // סגירת התפריט בלחיצה מחוץ
+        document.addEventListener('click', (e) => {
+            if (this.profileImageMenu && !this.profileImageMenu.contains(e.target) && e.target !== this.profileImageBtn) {
+                this.profileImageMenu.style.display = 'none';
+            }
+        });
+
+        // ברירת מחדל
+        if (defaultProfileOption) {
+            defaultProfileOption.addEventListener('click', () => {
+                this.userProfileImage = null;
+                this.renderMessages();
+                this.profileImageMenu.style.display = 'none';
+                this.showToast('התמונה אופסה לברירת מחדל', 'success');
+            });
+        }
+
+        customProfileOption.addEventListener('click', () => {
+            const storedImage = localStorage.getItem('user-profile-image');
+            if (storedImage) {
+                this.userProfileImage = storedImage;
+                this.renderMessages();
+                this.profileImageMenu.style.display = 'none';
+                this.showToast('התמונה המותאמת הופעלה', 'success');
+            } else {
+                this.showToast('אין תמונה שמורה', 'error');
+            }
+        });
+
+        const uploadProfileImageOption = document.getElementById('uploadProfileImageOption');
+        if (uploadProfileImageOption && this.profileImageInput) {
+            uploadProfileImageOption.addEventListener('click', () => {
+                this.profileImageInput.click();
+            });
+
+            this.profileImageInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file || !file.type.startsWith('image/')) {
+                    this.showToast('נא לבחור קובץ תמונה תקני', 'error');
+                    return;
+                }
+
+                const base64 = await this.readFileAsBase64(file);
+                this.userProfileImage = base64;
+                localStorage.setItem('user-profile-image', base64);
+                this.renderMessages();
+                this.customProfilePreview.src = 'data:image/*;base64,' + base64;
+                this.customProfilePreview.style.display = 'inline-block';
+                this.profileImageMenu.style.display = 'none';
+                this.showToast('תמונת הפרופיל עודכנה', 'success');
+            });
         }
 
         document.querySelectorAll('.load-page-btn').forEach(btn => {
@@ -606,30 +686,6 @@ class GeminiClone {
             });
         } else {
             console.warn('maxMessagesSelect element not found');
-        }
-        if (this.profileImageInput) {
-            this.profileImageInput.addEventListener('change', (e) => this.handleProfileImageUpload(e));
-        }
-    }
-
-
-    async handleProfileImageUpload(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-    
-        if (!file.type.startsWith('image/')) {
-            this.showToast('נא להעלות קובץ תמונה בלבד', 'error');
-            return;
-        }
-
-        try {
-            const base64 = await this.readFileAsBase64(file);
-            this.userProfileImage = base64;
-            localStorage.setItem('user-profile-image', base64);
-            this.renderMessages();
-            this.showToast('תמונת הפרופיל עודכנה', 'success');
-        } catch (error) {
-            this.showToast('שגיאה בהעלאת תמונת הפרופיל', 'error');
         }
     }
 
