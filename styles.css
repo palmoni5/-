@@ -1417,6 +1417,13 @@ html[data-luxury="true"] .export-option:hover {
     background: rgba(255, 255, 255, 0.2);
 }
 
+html[data-theme="dark"] .welcome-title { color: #f1f1f1; }
+html[data-luxury="true"] .welcome-title {
+    background: linear-gradient(135deg, #ffffff, #b0c5ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 .export-option:hover {
     background: var(--hover-color);
 }
