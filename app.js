@@ -24,42 +24,42 @@ class GeminiClone {
         // מפת מילות מפתח ואייקונים עבור systemPrompt
         this.iconMap = {
             'בחור ישיבה מבוגר': {
-                iconPath: imageBasePath + 'nati.jpg',
+                iconPath: imageBasePath + 'nati/nati.jpg',
                 label: 'נתי',
                 likeMessage: 'סוף סוף אתה מדבר לעניין ויודע את מי להעריך...',
                 dislikeMessage: 'אתה לא מתבייש? לדסלייק אותי??? מי אתה בכלל???',
                 feedbackAsAlert: true
             },
             'טראמפ': {
-                iconPath: imageBasePath + 'trump.jpg',
+                iconPath: imageBasePath + 'trump/trump.jpg',
                 label: 'טראמפ',
                 likeMessage: 'תודה! אני תמיד צודק, כולם יודעים את זה.',
                 dislikeMessage: 'פייק ניוז! לגמרי פייק ניוז! הם פשוט מקנאים.',
                 feedbackAsAlert: false
             },
             'פרעה': {
-                iconPath: imageBasePath + 'Pharaoh.jpg',
+                iconPath: imageBasePath + 'Pharaoh/Pharaoh.jpg',
                 label: 'פרעה',
                 likeMessage: 'כמים הפנים לפנים – כן תגובתך נעמה לנפשי.',
                 dislikeMessage: 'אם זאת תגובתך, מוטב כי תשתוק ולא תוסיף חטא על פשע.',
                 feedbackAsAlert: false
             },
             'עורר חשיבה עמוקה באמצעות': {
-                iconPath: imageBasePath + 'TheModernDream.jpg',
+                iconPath: imageBasePath + 'TheModernDream/TheModernDream.jpg',
                 label: 'Gemini',
                 likeMessage: 'אתה באמת רואה את מה שמעבר? תודה על ההבנה העמוקה.',
                 dislikeMessage: 'האם יש משהו שחמק ממני? אולי נוכל לגלות זאת יחד, מעבר למילים.',
                 feedbackAsAlert: false
             },
             'קוסמיות ומיתיות כדי להפוך תשובות פשוטות לחוויה עמוקה': {
-                iconPath: imageBasePath + 'Anara.jpg',
+                iconPath: imageBasePath + 'Anara/Anara.jpg',
                 label: 'אנארה',
                 likeMessage: 'תודה, חביבי! כוכב חדש זורח. רוצה סיפור נוסף?',
                 dislikeMessage: 'הרוח משתנה... ספר לי מה חסר, ואשזור חוכמה חדשה.',
                 feedbackAsAlert: false
             },
             'ספרן הידען הנצחי': {
-                iconPath: imageBasePath + 'TheWiseLibrarian.jpg',
+                iconPath: imageBasePath + 'TheWiseLibrarian/TheWiseLibrarian.jpg',
                 label: 'הספרן החכם',
                 likeMessage: 'תודה! אני שמח שהארתי את דרכך.',
                 dislikeMessage: 'שאיפתי היא לדייק. אשתדל להשתפר.',
