@@ -164,9 +164,10 @@
                 <span class="material-icons">stars</span>
                 <span>מצב יוקרתי</span>
             </div>
-            <div class="export-btn" id="exportBtn">
-                <span class="material-icons">download</span>
-                <span>ייצא צ'אט</span>
+            <button id="profileImageBtn" class="action-btn">
+                <span class="material-icons">person</span>
+                <span>הגדר תמונת פרופיל</span>
+            </button>
             </div>
         </div>
     </div>
@@ -176,6 +177,9 @@
             <div class="chat-title" id="chatTitle">צ'אט חדש</div>
             <div class="top-actions">
                 <button class="edit-chat-title-btn" id="editChatTitleBtn" title="ערוך שם צ'אט">✎</button>
+                <button class="action-btn" id="exportBtn" title="ייצא צ'אט">
+                    <span class="material-icons">download</span>
+                </button>
                 <button class="action-btn" id="shareBtn" title="העתק צ'אט">
                     <span class="material-icons">content_copy</span>
                 </button>
@@ -322,6 +326,24 @@
             <div class="modal-footer">
                 <button class="cancel-btn" id="cancelExport">ביטול</button>
                 <button class="confirm-btn" id="confirmExport">ייצא</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileImageMenu" class="export-menu profile-image-menu">
+        <div class="menu-title">בחר תמונת פרופיל</div>
+        <div class="profile-options-row">
+            <div class="export-option" id="defaultProfileOption">
+                <span class="profile-default-avatar">אתה</span>
+                <span>ברירת מחדל</span>
+            </div>
+            <div class="export-option" id="customProfileOption">
+                <img id="customProfilePreview" class="profile-avatar-image" src="" alt="תמונה מותאמת">
+                <span>תמונה מותאמת אישית</span>
+            </div>
+            <div class="export-option" id="uploadProfileImageOption">
+                <span class="material-icons">upload</span>
+                <span>העלה תמונה חדשה</span>
+                <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
             </div>
         </div>
     </div>
