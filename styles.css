@@ -52,12 +52,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    min-width: 120px;
-    transition: background 0.2s;
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 140px;
+    max-width: 220px;
     text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+    cursor: pointer;
 }
 
 .profile-image-menu .export-option:hover {
@@ -1259,7 +1262,7 @@ body {
 
 .theme-toggle,
 .luxury-toggle,
-.export-btn {
+.action-btn {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -1274,7 +1277,7 @@ body {
 
 .theme-toggle:hover,
 .luxury-toggle:hover,
-.export-btn:hover {
+.action-btn:hover {
     background: var(--hover-color);
     transform: scale(1.02);
 }
@@ -1333,6 +1336,7 @@ body {
     align-items: center;
     justify-content: center;
 }
+
 
 .action-btn:hover {
     background: var(--hover-color);
