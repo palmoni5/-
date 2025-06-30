@@ -1149,12 +1149,16 @@ class GeminiClone {
     }
 
     toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('gemini-theme', newTheme);
-        const icon = this.themeToggle.querySelector('.material-icons');
-        icon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+        if (this.themeToggle) {
+            this.themeToggle.innerHTML = newTheme === 'dark'
+                ? '<span class="material-icons">light_mode</span> מצב בהיר'
+                : '<span class="material-icons">dark_mode</span> מצב כהה';
+        }
+        this.showToast(`עבר ל${newTheme === 'dark' ? 'מצב כהה' : 'מצב בהיר'}`, 'success');
     }
 
     toggleLuxuryMode() {
@@ -1167,8 +1171,11 @@ class GeminiClone {
     loadTheme() {
         const savedTheme = localStorage.getItem('gemini-theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
-        const icon = this.themeToggle.querySelector('.material-icons');
-        icon.textContent = savedTheme === 'dark' ? 'light_mode' : 'dark_mode';
+        if (this.themeToggle) {
+            this.themeToggle.innerHTML = savedTheme === 'dark'
+                ? '<span class="material-icons">light_mode</span> מצב בהיר'
+                : '<span class="material-icons">dark_mode</span> מצב כהה';
+        }
         const sidebarCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
         if (sidebarCollapsed) {
             this.sidebar.classList.add('collapsed');
