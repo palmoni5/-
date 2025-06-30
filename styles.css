@@ -35,9 +35,9 @@
 .profile-image-menu {
     position: fixed;
     flex-direction: column;
-    top: 50%;
+    top: 40px;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%);
     background: white;
     border: 1px solid #ccc;
     box-shadow: 0 2px 12px rgba(0,0,0,0.3);
