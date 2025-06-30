@@ -1388,6 +1388,35 @@ body {
     margin-bottom: 2px;
 }
 
+html[data-theme="dark"] .profile-image-menu {
+    background-color: #2d2d2d;
+    color: #f1f1f1;
+    border: 1px solid #444;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] .export-option:hover {
+    background-color: #3a3a3a;
+}
+
+html[data-luxury="true"] .profile-image-menu {
+    background: var(--gradient-secondary);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-intense);
+    backdrop-filter: blur(8px);
+}
+
+html[data-luxury="true"] .export-option {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    transition: background 0.3s ease;
+}
+
+html[data-luxury="true"] .export-option:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
 .export-option:hover {
     background: var(--hover-color);
 }
