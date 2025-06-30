@@ -105,6 +105,8 @@ class GeminiClone {
         this.debounceRenderChatHistory = this.debounce(this.renderChatHistory.bind(this), 100);
         this.debounceFilterChatHistory = this.debounce(this.filterChatHistory.bind(this), 100);
 
+        this.userProfileImage = localStorage.getItem('user-profile-image') || null;
+
         this.initializeElements();
         this.bindEvents();
         this.loadSettings();
@@ -349,6 +351,7 @@ class GeminiClone {
         this.confirmExport = document.getElementById('confirmExport');
         this.includeTimestampsCheckbox = document.getElementById('includeTimestamps');
         this.includeSystemPromptsCheckbox = document.getElementById('includeSystemPrompts');
+        this.profileImageInput = document.getElementById('profileImageInput');
     }
 
     toggleHistorySidebar() {
@@ -604,7 +607,30 @@ class GeminiClone {
         } else {
             console.warn('maxMessagesSelect element not found');
         }
+        if (this.profileImageInput) {
+            this.profileImageInput.addEventListener('change', (e) => this.handleProfileImageUpload(e));
+        }
+    }
 
+
+    async handleProfileImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+    
+        if (!file.type.startsWith('image/')) {
+            this.showToast('נא להעלות קובץ תמונה בלבד', 'error');
+            return;
+        }
+
+        try {
+            const base64 = await this.readFileAsBase64(file);
+            this.userProfileImage = base64;
+            localStorage.setItem('user-profile-image', base64);
+            this.renderMessages();
+            this.showToast('תמונת הפרופיל עודכנה', 'success');
+        } catch (error) {
+            this.showToast('שגיאה בהעלאת תמונת הפרופיל', 'error');
+        }
     }
 
     updateIncludeAllChatHistory(checked) {
@@ -634,7 +660,8 @@ class GeminiClone {
                 systemPrompt: this.systemPrompt,
                 systemPromptTemplate: this.systemPromptTemplate,
                 isLuxuryMode: this.isLuxuryMode,
-                tokenLimitDisabled: this.tokenLimitDisabled
+                tokenLimitDisabled: this.tokenLimitDisabled,
+                userProfileImage: this.userProfileImage
             }
         };
 
@@ -774,6 +801,11 @@ class GeminiClone {
         this.isLuxuryMode = data.settings.isLuxuryMode || false;
         this.tokenLimitDisabled = data.settings.tokenLimitDisabled || false;
 
+        if (data.settings.userProfileImage) {
+            this.userProfileImage = data.settings.userProfileImage;
+            localStorage.setItem('user-profile-image', this.userProfileImage);
+        }
+
         // Save settings to localStorage
         localStorage.setItem('gemini-api-key', this.apiKey);
         localStorage.setItem('gemini-model', this.currentModel);
@@ -795,7 +827,7 @@ class GeminiClone {
         } else {
             this.resetToWelcomeScreen();
         }
-
+        this.renderMessages();
         this.showToast('היסטוריה והגדרות יובאו בהצלחה', 'success');
     }
 
@@ -1609,7 +1641,9 @@ class GeminiClone {
         const systemPrompt = this.chats[this.currentChatId]?.systemPrompt || '';
         const promptIcon = this.getPromptIcon(systemPrompt);
         const avatar = isUser 
-            ? '<span>אתה</span>' 
+            ? this.userProfileImage 
+                ? `<img src="data:image/*;base64,${this.userProfileImage}" alt="משתמש" class="user-avatar">`
+                : '<span>אתה</span>'
             : promptIcon.iconHtml 
                 ? `<img src="${promptIcon.iconHtml.match(/src="([^"]+)"/)?.[1]}" alt="עוזר" class="assistant-avatar">`
                 : '<span class="material-icons assistant-icon">auto_awesome</span>';

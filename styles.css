@@ -24,6 +24,7 @@
     --gradient-primary: linear-gradient(135deg, #4285f4, #34a853);
     --gradient-secondary: linear-gradient(135deg, #667eea, #764ba2);
     --glass-effect: rgba(255, 255, 255, 0.1);
+    --hover-bg: #f1f3f4;
 }
 
 #welcomeScreen {
@@ -45,6 +46,35 @@
     color: #333;
 }
 
+.user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+/* עדכון סגנון message-avatar עבור תמונת פרופיל */
+.message-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-image-upload {
+    position: relative; /* כדי שה-input יכסה את ה-div */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.profile-image-upload:hover {
+    background-color: var(--hover-bg);
+}
+
 .page-buttons {
     display: flex;
     flex-wrap: wrap; /* מוסיף שבירת שורות אוטומטית */
@@ -53,8 +83,8 @@
 }
 
 .page-btn {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     background-color: white;
     border: none;
@@ -83,9 +113,9 @@
 
 
 .page-img {
-    width: 95%;
-    height: 95%;
-    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     border-radius: 50%;
 }
 
