@@ -77,6 +77,7 @@ class GeminiClone {
         this.tokenLimitDisabled = localStorage.getItem('token-limit-disabled') === 'true';
         this.abortController = null;
         this.files = [];
+	this.filess = [];
         this.generationProgress = 0;
         this.progressInterval = null;
         this.searchQuery = '';
@@ -302,23 +303,7 @@ class GeminiClone {
         this.modelInfo = document.getElementById('modelInfo');
         this.attachBtn = document.getElementById('attachBtn');
         this.micBtn = document.getElementById('micBtn');
-        this.maxMessagesSelect = document.getElementById('maxMessagesSelect'); // הוסף שורה זו
-        
-        // Chat Interface
-        this.mainContent = document.getElementById('mainContent');
-        this.welcomeScreen = document.getElementById('welcomeScreen');
-        this.chatMessages = document.getElementById('chatMessages');
-        this.chatContainer = document.getElementById('chatContainer');
-        this.chatTitle = document.getElementById('chatTitle');
-        this.shareBtn = document.getElementById('shareBtn');
-        this.regenerateBtn = document.getElementById('regenerateBtn');
-        this.messageInput = document.getElementById('messageInput');
-        this.sendBtn = document.getElementById('sendBtn');
-        this.stopBtn = document.getElementById('stopBtn');
-        this.charCount = document.getElementById('charCount');
-        this.modelInfo = document.getElementById('modelInfo');
-        this.attachBtn = document.getElementById('attachBtn');
-        this.micBtn = document.getElementById('micBtn');
+        this.maxMessagesSelect = document.getElementById('maxMessagesSelect');
         
         // Loading & Notifications
         this.loadingOverlay = document.getElementById('loadingOverlay');
@@ -1342,7 +1327,7 @@ class GeminiClone {
             role: 'user',
             content: message,
             timestamp: new Date().toISOString(),
-            files: this.files.map(f => ({ name: f.name, size: f.size, type: f.type }))
+            files: this.filess.map(f => ({ name: f.name, size: f.size, type: f.type }))
         };
         
         this.chats[this.currentChatId].messages.push(userMessage);
@@ -1604,7 +1589,7 @@ class GeminiClone {
             parts: [{ text: "הנחיית מערכת: " + systemPromptText }]
         });
 
-        const fileParts = this.files.length > 0 ? await Promise.all(this.files.map(async file => ({
+        const fileParts = this.filess.length > 0 ? await Promise.all(this.filess.map(async file => ({
             inlineData: {
                 mimeType: file.type,
                 data: await this.readFileAsBase64(file)
@@ -2684,6 +2669,7 @@ class GeminiClone {
             this.renderFilePreview();
         };
         
+        this.filess = this.files;
         input.click();
     }
 
