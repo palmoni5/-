@@ -278,6 +278,7 @@ class GeminiClone {
         this.historySidebar = document.querySelector('.history-sidebar');
         this.historyToggle = document.querySelector('.history-toggle');
         this.loadPageBtn = document.getElementById('loadPageBtn');
+        this.createImageLightbox();
         
         this.geminiApiKey = document.getElementById('geminiApiKey');
         this.geminiModel = document.getElementById('geminiModel');
@@ -378,7 +379,30 @@ class GeminiClone {
         this.bindChatHistoryEvents();
     }
 
+    createImageLightbox() {
+        if (document.getElementById('imageLightbox')) return; // למניעת כפילות
 
+        const lightbox = document.createElement('div');
+        lightbox.id = 'imageLightbox';
+        lightbox.className = 'lightbox';
+        lightbox.style.display = 'none';
+        lightbox.onclick = () => {
+            lightbox.style.display = 'none';
+        };
+
+        const img = document.createElement('img');
+        img.id = 'lightboxImg';
+        img.alt = 'תמונה מוגדלת';
+
+        lightbox.appendChild(img);
+        document.body.appendChild(lightbox);
+    }
+    showLightbox(src) {
+        const lightbox = document.getElementById('imageLightbox');
+        const img = document.getElementById('lightboxImg');
+        img.src = src;
+        lightbox.style.display = 'flex';
+    }
 
     bindChatHistoryEvents() {
         document.querySelectorAll('.history-item').forEach(item => {
@@ -709,13 +733,12 @@ class GeminiClone {
             }
         }
 
-        // התרעה אם ניסו להדביק קבצים לא תקינים
         const invalidFiles = Array.from(items)
             .filter(item => item.kind === 'file')
             .map(item => item.getAsFile())
             .filter(file => file && !this.allowedFileTypes.includes(file.type));
         if (invalidFiles.length > 0) {
-            this.showToast('קבצים לא תקינים הוסרו.', 'neutral');
+            this.showToast('קבצים לא נתמכים הוסרו.', 'neutral');
         }
     }
 
@@ -1814,16 +1837,29 @@ class GeminiClone {
         const senderName = isUser ? 'אתה' : promptIcon.label;
     
         let filesHtml = '';
-        if (isUser && message.files && message.files.length) {
+        if (message.files && message.files.length) {
             filesHtml = `<div class="file-preview-list" style="margin-top:8px;">` +
-                message.files.map(f =>
-                    `<div class="file-preview">
-                        <span class="material-icons">${this.getFileIcon(f)}</span>
-                        <span title="${f.name}">${f.name.length > 18 ? f.name.slice(0,15)+'...' : f.name}</span>
-                        <span>(${this.formatFileSize(f.size)})</span>
-                    </div>`
-                ).join('') + `</div>`;
+                message.files.map(f => {
+                    if (f.type.startsWith('image/')) {
+                        return `
+                            <div class="image-thumbnail" title="${f.name}">
+                                <img src="data:${f.type};base64,${f.base64}" 
+                                     alt="${f.name}" 
+                                     class="chat-thumbnail" 
+                                     onclick="showLightbox('data:${f.type};base64,${f.base64}')">
+                                <div class="image-name">${f.name}</div>
+                            </div>`;
+                    } else {
+                        return `
+                            <div class="file-preview">
+                                <span class="material-icons">${this.getFileIcon(f)}</span>
+                                <span title="${f.name}">${f.name.length > 18 ? f.name.slice(0,15)+'...' : f.name}</span>
+                                <span>(${this.formatFileSize(f.size)})</span>
+                            </div>`;
+                    }
+                }).join('') + `</div>`;
         }
+
         
         return `
             <div class="message ${message.role}" data-message-id="${message.id}">
@@ -2833,7 +2869,7 @@ class GeminiClone {
             ];
             const files = Array.from(e.target.files).filter(file => allowedTypes.includes(file.type));
             if (files.length !== e.target.files.length) {
-                alert('נבחרו קבצים לא תקינים. אנא בחר רק מהסוגים המותרים.');
+                alert('נבחרו קבצים לא נתמכים. אנא בחרו רק קבצים נתמכים.');
             }
             this.files.push(...files);
             this.renderFilePreview();
@@ -2851,11 +2887,10 @@ class GeminiClone {
             this.renderFilePreview();
         }
 
-        // התרעה אם ניסו להעביר קבצים לא תקינים
         const invalidFiles = Array.from(fileList)
             .filter(file => !this.allowedFileTypes.includes(file.type));
         if (invalidFiles.length > 0) {
-            this.showToast('קבצים לא תקינים הוסרו.', 'neutral');
+            this.showToast('קבצים לא נתמכים הוסרו.', 'neutral');
         }
     }
 
@@ -3005,5 +3040,6 @@ class GeminiClone {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    new GeminiClone();
+    const app = new GeminiClone();
+    window.showLightbox = (src) => app.showLightbox(src);
 });
