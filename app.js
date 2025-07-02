@@ -774,7 +774,6 @@ class GeminiClone {
     }
 
     getPromptIcon(systemPrompt) {
-        console.log(`getPromptIcon called with systemPrompt: ${systemPrompt}`);
         if (!systemPrompt) return { iconHtml: '', label: 'Gemini' };
         const promptLower = systemPrompt.toLowerCase();
         for (const [keyword, { iconPath, label }] of Object.entries(this.iconMap)) {
