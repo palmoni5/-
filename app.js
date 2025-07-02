@@ -776,7 +776,7 @@ class GeminiClone {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `gemini_clone_history_${new Date().toISOString().split('T')[0]}.json`;
+        link.download = `gemini_clone_history_${new Date().toISOString().split('T')[0]}`;
         link.click();
 
         this.showToast('היסטוריה והגדרות יוצאו בהצלחה', 'success');
