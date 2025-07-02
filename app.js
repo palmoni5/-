@@ -427,6 +427,22 @@ class GeminiClone {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
         }
 
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            document.body.classList.add('dragover'); // הוספת מחלקה לוויזואלית (אופציונלי)
+        });
+
+        document.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            document.body.classList.remove('dragover'); // הסרת מחלקה כשהגרירה מסתיימת
+        });
+
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            document.body.classList.remove('dragover');
+            this.handleDropFiles(e.dataTransfer.files); // שימוש בפונקציה קיימת
+        });
+
         this.profileImageBtn = document.getElementById('profileImageBtn');
         this.profileImageMenu = document.getElementById('profileImageMenu');
         this.profileImageInput = document.getElementById('profileImageInput');
@@ -697,7 +713,7 @@ class GeminiClone {
             .map(item => item.getAsFile())
             .filter(file => file && !this.allowedFileTypes.includes(file.type));
         if (invalidFiles.length > 0) {
-            this.showToast('קבצים לא תקינים הודבקו והוסרו.', 'neutral');
+            this.showToast('קבצים לא תקינים הוסרו.', 'neutral');
         }
     }
 
@@ -2837,7 +2853,7 @@ class GeminiClone {
         const invalidFiles = Array.from(fileList)
             .filter(file => !this.allowedFileTypes.includes(file.type));
         if (invalidFiles.length > 0) {
-            this.showToast('קבצים לא תקינים הועברו והוסרו.', 'neutral');
+            this.showToast('קבצים לא תקינים הוסרו.', 'neutral');
         }
     }
 
