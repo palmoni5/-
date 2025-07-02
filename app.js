@@ -46,6 +46,16 @@ class GeminiClone {
 
         };
 
+        this.allowedFileTypes = [
+            'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif',
+            'application/pdf', 'text/plain', 'text/markdown',
+            'audio/wav', 'audio/mp3', 'audio/aiff', 'audio/aac', 'audio/ogg', 'audio/flac',
+            'video/mp4', 'video/mpeg', 'video/mov', 'video/avi', 'video/x-flv', 'video/mpg',
+            'video/webm', 'video/wmv', 'video/3gpp',
+            'text/x-c', 'text/x-c++', 'text/x-python', 'text/x-java', 'application/x-httpd-php',
+            'text/x-sql', 'text/html', 'text/javascript', 'text/typescript'
+        ];
+
         this.forbiddenWords = ['בחור ישיבה מבוגר', 'טראמפ', 'פרעה', 'ספרן הידען הנצחי', 'עורר חשיבה עמוקה באמצעות', 'קוסמיות ומיתיות כדי להפוך תשובות פשוטות'];
 
         this.currentChatId = null;
@@ -668,7 +678,7 @@ class GeminiClone {
         const files = Array.from(items)
             .filter(item => item.kind === 'file')
             .map(item => item.getAsFile())
-            .filter(file => file && file.type);
+            .filter(file => file && this.allowedFileTypes.includes(file.type));
 
         if (files.length > 0) {
             this.files.push(...files);
@@ -680,7 +690,16 @@ class GeminiClone {
                 this.updateCharCount();
             }
         }
-    } 
+
+        // התרעה אם ניסו להדביק קבצים לא תקינים
+        const invalidFiles = Array.from(items)
+            .filter(item => item.kind === 'file')
+            .map(item => item.getAsFile())
+            .filter(file => file && !this.allowedFileTypes.includes(file.type));
+        if (invalidFiles.length > 0) {
+            this.showToast('קבצים לא תקינים הודבקו והוסרו.', 'neutral');
+        }
+    }
 
     inputWrapper() {
         return this.messageInput.closest('.input-wrapper');
@@ -2806,9 +2825,20 @@ class GeminiClone {
     }
 
     handleDropFiles(fileList) {
-        const files = Array.from(fileList);
-        this.files.push(...files);
-        this.renderFilePreview();
+        const files = Array.from(fileList)
+            .filter(file => this.allowedFileTypes.includes(file.type));
+
+        if (files.length > 0) {
+            this.files.push(...files);
+            this.renderFilePreview();
+        }
+
+        // התרעה אם ניסו להעביר קבצים לא תקינים
+        const invalidFiles = Array.from(fileList)
+            .filter(file => !this.allowedFileTypes.includes(file.type));
+        if (invalidFiles.length > 0) {
+            this.showToast('קבצים לא תקינים הועברו והוסרו.', 'neutral');
+        }
     }
 
     renderFilePreview() {
