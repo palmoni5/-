@@ -434,8 +434,10 @@ class GeminiClone {
 
         document.addEventListener('dragleave', (e) => {
             e.preventDefault();
-            document.body.classList.remove('dragover'); // הסרת מחלקה כשהגרירה מסתיימת
-        });
+            if (e.target === document.body || e.relatedTarget === null) {
+                document.body.classList.remove('dragover');
+            }
+        }, { passive: false });
 
         document.addEventListener('drop', (e) => {
             e.preventDefault();
