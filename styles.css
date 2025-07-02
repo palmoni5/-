@@ -91,6 +91,12 @@
     color: white;
 }
 
+#streamResponse,
+label[for="streamResponse"],
+.checkbox-label:has(#streamResponse) {
+    display: none !important;
+}
+
 .profile-avatar-image {
     width: 44px;
     height: 44px;
