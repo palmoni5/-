@@ -2792,7 +2792,7 @@ class GeminiClone {
                 'video/mp4', 'video/mpeg', 'video/mov', 'video/avi', 'video/x-flv', 'video/mpg',
                 'video/webm', 'video/wmv', 'video/3gpp',
                 'text/x-c', 'text/x-c++', 'text/x-python', 'text/x-java', 'application/x-httpd-php',
-                'text/x-sql', 'text/html', 'text/javascript', '.ts'
+                'text/x-sql', 'text/html', 'text/javascript', 'text/typescript'
             ];
             const files = Array.from(e.target.files).filter(file => allowedTypes.includes(file.type));
             if (files.length !== e.target.files.length) {
