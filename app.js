@@ -1361,11 +1361,6 @@ class GeminiClone {
                     console.warn("Invalid file object:", file);
                     throw new Error('קובץ לא תקין: ' + (file.name || 'לא ידוע'));
                 }
-                // בדיקת סוג MIME
-                if (!supportedMimeTypes.includes(file.type)) {
-                    console.warn("Unsupported MIME type for file:", file.name, file.type);
-                    throw new Error('סוג קובץ לא נתמך: ' + file.name);
-                }
                 // אם לקובץ יש base64, השתמש בו
                 if (file.base64) {
                     if (!/^[A-Za-z0-9+/=]+$/.test(file.base64)) {
@@ -1933,7 +1928,6 @@ class GeminiClone {
         const userMessage = messages[userMessageIndex];
 
         // טעינת הקבצים של ההודעה עם בדיקת תקינות
-        const supportedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf', 'text/plain'];
         this.files = [];
         if (userMessage.files && userMessage.files.length > 0) {
             try {
@@ -1942,12 +1936,6 @@ class GeminiClone {
                     if (!file.base64 || !/^[A-Za-z0-9+/=]+$/.test(file.base64)) {
                         console.warn('Invalid base64 for file:', file.name);
                         this.showToast(`קובץ לא תקין: ${file.name}`, 'error');
-                        return false;
-                    }
-                    // בדיקת סוג MIME
-                    if (!supportedMimeTypes.includes(file.type)) {
-                        console.warn('Unsupported MIME type for file:', file.name, file.type);
-                        this.showToast(`סוג קובץ לא נתמך: ${file.name}`, 'error');
                         return false;
                     }
                     return true;
