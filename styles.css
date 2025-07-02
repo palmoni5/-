@@ -234,6 +234,15 @@ body.dragover::before {
     cursor: pointer;
 }
 
+#filePreviewList {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* להצמד לשמאל */
+    direction: ltr;
+    gap: 6px;
+    max-width: 100%; /* למניעת גלילה אופקית */
+}
+
 .page-buttons-wrapper {
     text-align: center;
     margin: 30px 0;
