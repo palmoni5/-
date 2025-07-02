@@ -2160,7 +2160,6 @@ class GeminiClone {
 
         const sortedChats = chatArray.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
         this.chatHistory.innerHTML = sortedChats.map(chat => {
-            console.log(`Rendering chat ID: ${chat.id}, SystemPrompt: ${chat.systemPrompt}, IconHtml: ${this.getPromptIcon(chat.systemPrompt).iconHtml}`);
             return `
                 <div class="history-item ${chat.id === this.currentChatId ? 'active' : ''}" data-chat-id="${chat.id}">
                     <div class="history-item-title">${this.getPromptIcon(chat.systemPrompt).iconHtml}${chat.title}</div>
