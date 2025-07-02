@@ -2783,10 +2783,21 @@ class GeminiClone {
         const input = document.createElement('input');
         input.type = 'file';
         input.multiple = true;
-        input.accept = 'image/png,image/jpeg,image/webp,image/heic,image/heif,application/pdf,text/plain,text/markdown,audio/wav,audio/mp3,audio/aiff,audio/aac,audio/ogg,audio/flac,video/mp4,video/mpeg,video/mov,video/avi,video/x-flv,video/mpg,video/webm,video/wmv,video/3gpp,text/x-c,text/x-c++,text/x-python,text/x-java,application/x-httpd-php,text/x-sql,text/html';
-        
+        input.accept = 'image/png,image/jpeg,image/webp,image/heic,image/heif,application/pdf,text/plain,text/markdown,audio/wav,audio/mp3,audio/aiff,audio/aac,audio/ogg,audio/flac,video/mp4,video/mpeg,video/mov,video/avi,video/x-flv,video/mpg,video/webm,video/wmv,video/3gpp,text/x-c,text/x-c++,text/x-python,text/x-java,application/x-httpd-php,text/x-sql,text/html,.c,.cpp,.py,.java,.php,.sql,.html,text/javascript,.js';
         input.onchange = (e) => {
-            const files = Array.from(e.target.files);
+            const allowedTypes = [
+                'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif',
+                'application/pdf', 'text/plain', 'text/markdown',
+                'audio/wav', 'audio/mp3', 'audio/aiff', 'audio/aac', 'audio/ogg', 'audio/flac',
+                'video/mp4', 'video/mpeg', 'video/mov', 'video/avi', 'video/x-flv', 'video/mpg',
+                'video/webm', 'video/wmv', 'video/3gpp',
+                'text/x-c', 'text/x-c++', 'text/x-python', 'text/x-java', 'application/x-httpd-php',
+                'text/x-sql', 'text/html', 'text/javascript'
+            ];
+            const files = Array.from(e.target.files).filter(file => allowedTypes.includes(file.type));
+            if (files.length !== e.target.files.length) {
+                alert('נבחרו קבצים לא תקינים. אנא בחר רק מהסוגים המותרים.');
+            }
             this.files.push(...files);
             this.renderFilePreview();
         };
