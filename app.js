@@ -73,13 +73,12 @@ class GeminiClone {
             includeAllChatHistory: false,
             hideLoadingOverlay: false
         }));
-        // הגדרת systemPrompt בהתאם לדף
         const pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content');
         this.pageConfig = pageConfig;
         if (pageConfig === 'chat-page') {
             this.systemPrompt = localStorage.getItem('gemini-system-prompt') || '';
         } else {
-            this.systemPrompt = ''; // אין systemPrompt נוסף עבור trump-page ו-nati-page
+            this.systemPrompt = '';
         }
         this.systemPromptTemplate = localStorage.getItem('gemini-system-prompt-template') || '';
         this.isLoading = false;
@@ -149,19 +148,15 @@ class GeminiClone {
         const isGitHubPages = window.location.hostname.endsWith('github.io');
 
         if (isLocal) {
-            // אם לא מסתיים ב '/' נוסיף אותו כדי להבטיח שזה תיקייה
             if (!pageUrl.endsWith('/')) {
                 pageUrl += '/';
             }
-            // פותחים את index.html בתוך התיקייה שצוינה
             window.location.href = pageUrl + 'index.html';
 
         } else if (isGitHubPages) {
-            // ב-GitHub Pages פשוט נפתח את ה-URL כפי שנשלח (כולל תיקייה פנימית)
             window.location.href = pageUrl;
 
         } else {
-            // במצב אחר נטען את הכתובת כפי שהיא
             window.location.href = pageUrl;
         }
     }
@@ -190,7 +185,6 @@ class GeminiClone {
         const messageIndex = messages.findIndex(msg => msg.id === messageId);
         
         if (messageIndex !== -1) {
-            // If deleting user message, also delete the assistant's response
             if (messages[messageIndex].role === 'user' && messageIndex + 1 < messages.length && 
                 messages[messageIndex + 1].role === 'assistant') {
                 messages.splice(messageIndex, 2);
@@ -207,7 +201,6 @@ class GeminiClone {
     showToast(message, type = 'success', options = {}) {
         const toast = document.createElement('div');
     
-        // הוספת סוג הטוסט, אם לא נבחר סוג אז ברירת המחדל היא 'success'
         toast.className = `toast ${type}`;
     
         toast.innerHTML = `
@@ -216,20 +209,13 @@ class GeminiClone {
             ${options.action ? `<button class="undo-btn">${options.action.text}</button>` : ''}
         `;
 
-        // הוספת הטוסט למיכל
         this.toastContainer.appendChild(toast);
-
-        // אם יש פעולה כפתור, הגדרת פעולה
         if (options.action) {
             toast.querySelector('.undo-btn').onclick = options.action.callback;
         }
-
-        // אם סוג הטוסט הוא 'neutral', הוסף גבול צהוב
         if (type === 'neutral') {
-            toast.style.borderLeft = '4px solid yellow';  // גבול צהוב
+            toast.style.borderLeft = '4px solid yellow';
         }
-
-        // אחרי 5 שניות, יתחיל האנימציה להסתיר את הטוסט
         setTimeout(() => {
             toast.style.animation = 'toastSlideUp 0.3s ease-out forwards';
             setTimeout(() => toast.remove(), 300);
@@ -240,7 +226,7 @@ class GeminiClone {
         if (!systemPrompt) return {
             likeMessage: 'תודה על המשוב! אני שמח שאהבת!',
             dislikeMessage: 'תודה על המשוב. אשתדל להיות יותר טוב.',
-            feedbackAsAlert: false // ברירת מחדל: toast
+            feedbackAsAlert: false 
         };
         const promptLower = systemPrompt.toLowerCase();
         for (const [keyword, config] of Object.entries(this.iconMap)) {
@@ -255,7 +241,7 @@ class GeminiClone {
         return {
             likeMessage: 'תודה על המשוב! אני שמח שאהבת!',
             dislikeMessage: 'תודה על המשוב. אשתדל להיות יותר טוב.',
-            feedbackAsAlert: false // ברירת מחדל: toast
+            feedbackAsAlert: false
         };
     }
 
@@ -380,7 +366,7 @@ class GeminiClone {
     }
 
     createImageLightbox() {
-        if (document.getElementById('imageLightbox')) return; // למניעת כפילות
+        if (document.getElementById('imageLightbox')) return;
 
         const lightbox = document.createElement('div');
         lightbox.id = 'imageLightbox';
@@ -424,9 +410,8 @@ class GeminiClone {
     }
 
     bindEvents() {
-        // Sidebar controls
         this.sidebarToggle.addEventListener('click', () => this.toggleSidebar());
-        if (this.historyToggle) { // הוסף
+        if (this.historyToggle) {
             this.historyToggle.addEventListener('click', () => this.toggleHistorySidebar());
         } else {
             console.warn('historyToggle element not found');
@@ -453,7 +438,7 @@ class GeminiClone {
 
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
-            document.body.classList.add('dragover'); // הוספת מחלקה לוויזואלית (אופציונלי)
+            document.body.classList.add('dragover');
         });
 
         document.addEventListener('dragleave', (e) => {
@@ -466,7 +451,7 @@ class GeminiClone {
         document.addEventListener('drop', (e) => {
             e.preventDefault();
             document.body.classList.remove('dragover');
-            this.handleDropFiles(e.dataTransfer.files); // שימוש בפונקציה קיימת
+            this.handleDropFiles(e.dataTransfer.files);
         });
 
         this.profileImageBtn = document.getElementById('profileImageBtn');
@@ -477,7 +462,6 @@ class GeminiClone {
         const defaultProfileOption = document.getElementById('defaultProfileOption');
         const customProfileOption = document.getElementById('customProfileOption');
 
-        // פתיחת התפריט
         if (this.profileImageBtn && this.profileImageMenu) {
             this.profileImageBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -494,14 +478,12 @@ class GeminiClone {
             });
         }
 
-        // סגירת התפריט בלחיצה מחוץ
         document.addEventListener('click', (e) => {
             if (this.profileImageMenu && !this.profileImageMenu.contains(e.target) && e.target !== this.profileImageBtn) {
                 this.profileImageMenu.style.display = 'none';
             }
         });
 
-        // ברירת מחדל
         if (defaultProfileOption) {
             defaultProfileOption.addEventListener('click', () => {
                 this.userProfileImage = null;
@@ -557,7 +539,6 @@ class GeminiClone {
             });
         });
 
-        // History search
         if (this.historySearch) {
             this.historySearch.addEventListener('input', () => this.filterChatHistory());
         } else {
@@ -569,10 +550,9 @@ class GeminiClone {
             const newTitle = prompt("הזן שם חדש לצ'אט", currentTitle);
             if (newTitle && newTitle !== currentTitle) {
                 document.getElementById('chatTitle').innerText = newTitle;
-                // עדכון שם הצ'אט במחלקה שלך
                 if (this.currentChatId && this.chats[this.currentChatId]) {
                     this.chats[this.currentChatId].title = newTitle;
-                    this.saveChatData(); // שמירת השם החדש ב-localStorage או מאגר הנתונים
+                    this.saveChatData(); 
                 }
             }
         });
@@ -585,7 +565,6 @@ class GeminiClone {
             });
         }   
         
-        // Settings controls
         this.geminiApiKey.addEventListener('input', (e) => this.saveApiKey(e.target.value));
         this.geminiModel.addEventListener('change', (e) => this.changeModel(e.target.value));
         if (this.systemPromptTemplateSelect) {
@@ -601,23 +580,17 @@ class GeminiClone {
         this.streamResponseCheckbox.addEventListener('change', (e) => this.updateStreamResponse(e.target.checked));
         this.includeChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeChatHistory(e.target.checked));
         
-        // הצגת תפריט maxMessagesSelect רק אם 'כלול היסטוריית צ'אט' פעיל
         this.includeAllChatHistoryCheckbox?.addEventListener('change', () => {
             this.toggleMaxMessagesVisibility();
         });
 
-        // הפעלה ראשונית במצב טעינה
         this.toggleMaxMessagesVisibility();
-
-        // Chat actions
         this.shareBtn.addEventListener('click', () => this.shareChat());
         this.regenerateBtn.addEventListener('click', () => this.regenerateLastResponse());
         this.messageInput.addEventListener('input', () => this.updateCharCount());
         this.messageInput.addEventListener('keydown', (e) => this.handleKeyDown(e));
         this.sendBtn.addEventListener('click', () => this.sendMessage());
         this.stopBtn.addEventListener('click', () => this.abortGeneration());
-        
-        // Export dropdown (בודקים אם האלמנטים קיימים)
         if (this.exportDropdownBtn && this.exportDropdownContent) {
             this.exportDropdownBtn.addEventListener('click', () => {
                 this.exportDropdownContent.classList.toggle('show');
@@ -638,7 +611,6 @@ class GeminiClone {
             });
         }
         
-        // Export modal
         this.closeExportModal.addEventListener('click', () => this.hideExportModal());
         this.cancelExport.addEventListener('click', () => this.hideExportModal());
         this.confirmExport.addEventListener('click', () => {
@@ -649,7 +621,6 @@ class GeminiClone {
             this.hideExportModal();
         });
         
-        // Suggestion cards
         document.querySelectorAll('.suggestion-card').forEach(card => {
             card.addEventListener('click', () => {
                 const prompt = card.getAttribute('data-prompt');
@@ -659,18 +630,12 @@ class GeminiClone {
             });
         });
         
-        // File handling
         this.attachBtn.addEventListener('click', () => this.handleAttachment());
         this.micBtn.addEventListener('click', () => this.toggleVoiceRecording());
-        
-        // Context menu
         document.addEventListener('contextmenu', (e) => this.handleContextMenu(e));
         document.addEventListener('click', () => this.hideContextMenu());
-        
-        // Global shortcuts
         document.addEventListener('keydown', (e) => this.handleGlobalShortcuts(e));
         
-        // Drag & drop
         this.messageInput.addEventListener('dragover', (e) => {
             e.preventDefault();
             this.inputWrapper().classList.add('dragover');
@@ -685,15 +650,12 @@ class GeminiClone {
             this.handleDropFiles(e.dataTransfer.files);
         });
 
-        // Max Messages Dropdown
         const maxMessagesSelect = document.getElementById('maxMessagesSelect');
         if (maxMessagesSelect) {
-            // טעינת הגדרה קיימת מ-localStorage
             const settings = JSON.parse(localStorage.getItem('gemini-settings')) || {};
             if (settings.maxMessages) {
                 maxMessagesSelect.value = settings.maxMessages;
             }
-            // עדכון localStorage בעת שינוי בתפריט
             maxMessagesSelect.addEventListener('change', () => {
                 const value = maxMessagesSelect.value;
                 const settings = JSON.parse(localStorage.getItem('gemini-settings')) || {};
@@ -812,19 +774,19 @@ class GeminiClone {
     }
 
     getPromptIcon(systemPrompt) {
-        console.log(`getPromptIcon called with systemPrompt: ${systemPrompt}`); // דיבאג
+        console.log(`getPromptIcon called with systemPrompt: ${systemPrompt}`);
         if (!systemPrompt) return { iconHtml: '', label: 'Gemini' };
         const promptLower = systemPrompt.toLowerCase();
         for (const [keyword, { iconPath, label }] of Object.entries(this.iconMap)) {
             if (promptLower.includes(keyword.toLowerCase())) {
-                console.log(`Match found for keyword: ${keyword}, iconPath: ${iconPath}`); // דיבאג
+                console.log(`Match found for keyword: ${keyword}, iconPath: ${iconPath}`);
                 return {
                     iconHtml: `<img src="${iconPath}" alt="${keyword}" class="prompt-icon" style="width: 18px; height: 18px; margin-left: 5px; vertical-align: middle;">`,
                     label: label
                 };
             }
         }
-        console.log('No match found, returning default'); // דיבאג
+        console.log('No match found, returning default');
         return {
             iconHtml: '',
             label: 'Gemini'
@@ -836,15 +798,12 @@ class GeminiClone {
             this.showToast('מבנה קובץ לא תקין', 'error');
             return;
         }
-        // Create a copy of existing chats
         const mergedChats = { ...this.chats };
 
-        // Process each imported chat
         Object.entries(data.chats).forEach(([importedChatId, newChat]) => {
             let finalChatId = importedChatId;
             let finalChat = { ...newChat };
 
-            // Check if the current chat has the same title
             const currentChat = this.currentChatId && mergedChats[this.currentChatId];
             const isCurrentChatConflict = currentChat && currentChat.title === newChat.title;
 
@@ -854,12 +813,9 @@ class GeminiClone {
                 );
 
                 if (shouldOverwrite) {
-                    // Overwrite the current chat
                     finalChatId = this.currentChatId;
                 } else {
-                    // Generate a new unique chat ID
                     finalChatId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-                    // Find the next available number for the title
                     let counter = 2;
                     let newTitle = `${newChat.title} (${counter})`;
                     while (Object.values(mergedChats).some(chat => chat.title === newTitle)) {
@@ -869,7 +825,6 @@ class GeminiClone {
                     finalChat = { ...newChat, title: newTitle };
                 }
             } else {
-                // Check for title conflicts with other chats (non-current)
                 let counter = 2;
                 let newTitle = newChat.title;
                 while (Object.values(mergedChats).some(chat => chat.title === newTitle && chat !== currentChat)) {
@@ -878,21 +833,17 @@ class GeminiClone {
                 }
                 finalChat = { ...newChat, title: newTitle };
 
-                // If the chatId already exists, assign a new ID
                 if (mergedChats[importedChatId]) {
                     finalChatId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
                 }
             }
 
-            // Add or update the chat in mergedChats
             mergedChats[finalChatId] = finalChat;
         });
 
-        // Update chats
         this.chats = mergedChats;
         localStorage.setItem('gemini-chats', JSON.stringify(this.chats));
 
-        // Update settings
         this.apiKey = data.settings.apiKey || '';
         this.currentModel = data.settings.currentModel || 'gemini-2.5-flash-preview-05-20';
         this.chatHistoryEnabled = data.settings.chatHistoryEnabled !== false;
@@ -915,12 +866,10 @@ class GeminiClone {
             localStorage.setItem('user-profile-image', this.userProfileImage);
         }
 
-        // שחזור סטטוס השימוש בתמונה מותאמת
         const useCustom = data.settings.useCustomProfileImage === true;
         localStorage.setItem('use-custom-profile-image', useCustom ? 'true' : 'false');
         this.userProfileImage = useCustom ? data.settings.userProfileImage : null;
 
-        // Save settings to localStorage
         localStorage.setItem('gemini-api-key', this.apiKey);
         localStorage.setItem('gemini-model', this.currentModel);
         localStorage.setItem('chatHistoryEnabled', this.chatHistoryEnabled ? 'true' : 'false');
@@ -930,7 +879,6 @@ class GeminiClone {
         localStorage.setItem('luxury-mode', this.isLuxuryMode ? 'true' : 'false');
         localStorage.setItem('token-limit-disabled', this.tokenLimitDisabled ? 'true' : 'false');
 
-        // Refresh UI
         this.loadSettings();
         this.renderChatHistory();
         this.loadTheme();
@@ -971,14 +919,13 @@ class GeminiClone {
     }
 
     loadSettings() {
-        // Load API key and model settings
         this.geminiApiKey.value = this.apiKey;
         this.geminiModel.value = this.currentModel;
         this.hideLoadingOverlayCheckbox.checked = this.settings.hideLoadingOverlay !== false;
         if (this.includeAllChatHistoryCheckbox) {
             this.includeAllChatHistoryCheckbox.checked = this.settings.includeAllChatHistory;
         }
-        if (this.systemPromptInput) this.systemPromptInput.value = this.systemPrompt; // בדיקה למניעת שגיאה
+        if (this.systemPromptInput) this.systemPromptInput.value = this.systemPrompt; 
         if (this.systemPromptTemplateSelect) this.systemPromptTemplateSelect.value = this.systemPromptTemplate;
         
         const tokenLimitCheckbox = document.getElementById('toggleTokenLimit');
@@ -1019,7 +966,6 @@ class GeminiClone {
             });
         }
 
-        // Load advanced settings
         this.temperatureSlider.value = this.settings.temperature;
         this.maxTokensSlider.value = this.settings.maxTokens;
         this.topPSlider.value = this.settings.topP || 0.95;
@@ -1027,20 +973,14 @@ class GeminiClone {
         this.streamResponseCheckbox.checked = this.settings.streamResponse !== false;
         this.includeChatHistoryCheckbox.checked = this.settings.includeChatHistory !== false;
         
-        // Update display values
         this.tempValue.textContent = this.settings.temperature;
         this.maxTokensValue.textContent = this.settings.maxTokens;
         this.topPValue.textContent = this.settings.topP || 0.95;
         this.topKValue.textContent = this.settings.topK || 40;
         this.modelInfo.textContent = this.getModelDisplayName(this.currentModel);
         
-        // Validate API key if present
         if (this.apiKey) this.validateApiKey();
-        
-        // Render chat history
         this.renderChatHistory();
-        
-        // Set initial visibility of maxMessagesSelect based on includeAllChatHistory
         this.toggleMaxMessagesVisibility();
     }
 
@@ -1087,7 +1027,7 @@ class GeminiClone {
         this.apiKey = key;
         localStorage.setItem('gemini-api-key', key);
         if (key.trim()) {
-            this.validateApiKey(); // מפעיל בדיקה, ההודעה תוצג ב-validateApiKey
+            this.validateApiKey();
         } else {
             this.apiStatus.style.display = 'none';
             this.showToast('מפתח ה-API הוסר', 'neutral');
@@ -1105,7 +1045,6 @@ class GeminiClone {
         this.systemPromptTemplate = template;
         localStorage.setItem('gemini-system-prompt-template', template);
         
-        // Set predefined system prompts based on template selection
         let promptText = '';
         switch (template) {
             case 'expert':
@@ -1121,7 +1060,6 @@ class GeminiClone {
                 promptText = 'פעל כמתכנת מקצועי. ספק קוד יעיל ומתועד היטב, כולל הסברים ברורים על הפתרון שבחרת.';
                 break;
             case 'custom':
-                // Keep the current custom prompt if it exists
                 promptText = this.systemPrompt;
                 break;
             default:
@@ -1131,7 +1069,6 @@ class GeminiClone {
         this.systemPromptInput.value = promptText;
         this.saveSystemPrompt(promptText);
         
-        // Only show the system prompt textarea for custom prompts
         if (template === 'custom') {
             this.systemPromptInput.style.display = 'block';
         } else {
@@ -1250,13 +1187,11 @@ class GeminiClone {
                 const isAlreadySelected = option.classList.contains('selected');
 
                 if (isAlreadySelected) {
-                    // אם האפשרות כבר בוחרה, בצע יצוא מיד
                     const includeTimestamps = document.querySelector('#includeTimestamps').checked;
                     const includeSystemPrompts = document.querySelector('#includeSystemPrompts').checked;
                     this.exportChat(format, includeTimestamps, includeSystemPrompts);
                     this.hideExportModal();
                 } else {
-                    // הסר בחירה קודמת והוסף בחירה חדשה
                     document.querySelectorAll('#exportModal .export-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
@@ -1265,7 +1200,6 @@ class GeminiClone {
             });
         });
 
-        // הגדרת docx כברית מחדל בעת טעינה
         const docxOption = document.querySelector('#exportModal .export-option[data-format="docx"]');
         if (docxOption) {
             docxOption.classList.add('selected');
@@ -1278,16 +1212,13 @@ class GeminiClone {
             return;
         }
         
-        // Reset selections
         document.querySelectorAll('#exportModal .export-option').forEach(opt => {
             opt.classList.remove('selected');
         });
-        // בחירת docx כברירת מחדל
         const docxOption = document.querySelector('#exportModal .export-option[data-format="docx"]');
         if (docxOption) {
             docxOption.classList.add('selected');
         } else {
-            // חלופה למקרה ש-docx לא קיים
             document.querySelector('#exportModal .export-option[data-format="pdf"]').classList.add('selected');
         }
         
@@ -1351,7 +1282,6 @@ class GeminiClone {
         this.messageInput.focus();
         this.files = [];
         this.renderFilePreview();
-        // ודא שהכפתור מוסתר
         const editChatTitleBtn = document.getElementById('editChatTitleBtn');
         if (editChatTitleBtn) {
             editChatTitleBtn.style.display = 'none';
@@ -1411,17 +1341,14 @@ class GeminiClone {
             this.startNewChat();
         }
 
-         // הכנת הקבצים עבור ההודעה
         let messageFiles = [];
         try {
             const supportedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf', 'text/plain'];
             messageFiles = await Promise.all(this.files.map(async file => {
-                // בדיקה שהקובץ תקין (File/Blob או עצם עם תכונות מתאימות)
                 if (!(file instanceof File || file instanceof Blob || (file.name && file.size && file.type && file.base64))) {
                     console.warn("Invalid file object:", file);
                     throw new Error('קובץ לא תקין: ' + (file.name || 'לא ידוע'));
                 }
-                // אם לקובץ יש base64, השתמש בו
                 if (file.base64) {
                     if (!/^[A-Za-z0-9+/=]+$/.test(file.base64)) {
                         console.warn("Invalid base64 format for file:", file.name);
@@ -1434,7 +1361,6 @@ class GeminiClone {
                         base64: file.base64.startsWith('data:') ? file.base64.split(',')[1] : file.base64
                     };
                 }
-                // המר את הקובץ ל-base64
                 const base64 = await this.readFileAsBase64(file);
                 return {
                     name: file.name,
@@ -1460,14 +1386,12 @@ class GeminiClone {
         this.chats[this.currentChatId].messages.push(userMessage);
         this.chats[this.currentChatId].updatedAt = new Date().toISOString();
 
-        // עדכון כותרת הצ'אט בהודעה הראשונה
         if (this.chats[this.currentChatId].messages.length === 1) {
             const title = message.length > 20 ? message.substring(0, 20) + '...' : message || 'צ\'אט עם קבצים';
             this.chats[this.currentChatId].title = title;
             this.updateChatTitle(title);
         }
 
-        // ניקוי הקבצים לאחר הוספתם להודעה
         this.files = [];
         this.filess = [];
         this.renderFilePreview();
@@ -1539,15 +1463,13 @@ class GeminiClone {
         this.generationProgress = 0;
         this.updateProgressDisplay();
         
-        // Calculate approximate time based on message length and complexity
         const messageLength = this.messageInput.value.length;
         const complexity = messageLength > 500 ? 1.5 : 1;
-        const totalUpdates = 20; // Number of progress updates
-        const totalTime = Math.min(Math.max(messageLength * complexity * 15, 3000), 8000); // Between 3 and 8 seconds
+        const totalUpdates = 20; 
+        const totalTime = Math.min(Math.max(messageLength * complexity * 15, 3000), 8000);
         const updateInterval = totalTime / totalUpdates;
         
         this.progressInterval = setInterval(() => {
-            // Use a non-linear progression for more realistic feeling
             if (this.generationProgress < 30) {
                 this.generationProgress += 3;
             } else if (this.generationProgress < 60) {
@@ -1558,7 +1480,6 @@ class GeminiClone {
                 this.generationProgress += 0.5;
             }
             
-            // Cap at 95% until complete
             this.generationProgress = Math.min(this.generationProgress, 95);
             this.updateProgressDisplay();
         }, updateInterval);
@@ -1791,7 +1712,6 @@ class GeminiClone {
         const messages = this.chats[this.currentChatId].messages;
         let messagesHTML = messages.map(message => this.createMessageHTML(message)).join('');
     
-        // הוספת מחוון שלוש הנקודות אם בטעינה וחלון הטעינה מוסתר
         if (this.isLoading && this.settings.hideLoadingOverlay) {
             messagesHTML += `
                 <div class="animated-dots">
@@ -1816,7 +1736,6 @@ class GeminiClone {
             }
         }
 
-        // גלילה מיידית לתחתית הצ'אט
         setTimeout(() => {
             this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
         }, 0);
@@ -1843,7 +1762,6 @@ class GeminiClone {
 
             filesHtml = '';
         
-            // 🖼️ קטע התמונות עם כותרת
             if (images.length) {
                 filesHtml += `
                     <div class="file-preview-list images-only">
@@ -1859,7 +1777,6 @@ class GeminiClone {
                     </div>`;
             }
 
-            // 📎 קטע הקבצים עם כותרת
             if (otherFiles.length) {
                 filesHtml += `
                     <div class="file-preview-list other-files">
@@ -1918,54 +1835,32 @@ class GeminiClone {
     }
 
     formatMessageContent(content) {
-        // Improved code handling with proper line breaks
         let formatted = content;
-        
-        // Code blocks - preserving actual line breaks
         formatted = formatted.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
             lang = lang || 'javascript';
-            // Don't convert to entities before Prism
             return `<pre class="code-block"><code class="language-${lang}">${code}</code>
                 <button class="copy-code-btn" title="העתק קוד"><span class="material-icons">content_copy</span></button>
             </pre>`;
         });
         
-        // Inline code
         formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
-        
-        // Links
         formatted = formatted.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-        
-        // Headings
         formatted = formatted.replace(/^### (.*)$/gm, '<h3>$1</h3>');
         formatted = formatted.replace(/^## (.*)$/gm, '<h2>$1</h2>');
         formatted = formatted.replace(/^# (.*)$/gm, '<h1>$1</h1>');
-        
-        // Lists - improved to properly handle multi-level lists
         formatted = formatted.replace(/^- (.+)$/gm, '<li>$1</li>');
         formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
         formatted = formatted.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-        
-        // Emphasis
         formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        
-        // Underline
         formatted = formatted.replace(/__(.*?)__/g, '<u>$1</u>');
-        
-        // Tables - improved for better parsing
         formatted = formatted.replace(/((?:\|.+\|(?:\n|$))+)/g, (table) => {
             const rows = table.trim().split('\n');
             let tableHtml = '<table>';
-            
-            // Check for header row
             if (rows.length > 1 && rows[1].replace(/[^|]/g, '') === rows[1]) {
-                // Has header separator
                 tableHtml += '<thead><tr>' + 
                     rows[0].split('|').filter(Boolean).map(cell => `<th>${cell.trim()}</th>`).join('') + 
                     '</tr></thead><tbody>';
-                
-                // Add data rows starting from index 2
                 for (let i = 2; i < rows.length; i++) {
                     tableHtml += '<tr>' + 
                         rows[i].split('|').filter(Boolean).map(cell => `<td>${cell.trim()}</td>`).join('') + 
@@ -1973,7 +1868,6 @@ class GeminiClone {
                 }
                 tableHtml += '</tbody>';
             } else {
-                // No header, all rows are data
                 for (const row of rows) {
                     tableHtml += '<tr>' + 
                         row.split('|').filter(Boolean).map(cell => `<td>${cell.trim()}</td>`).join('') + 
@@ -1984,7 +1878,6 @@ class GeminiClone {
             return tableHtml + '</table>';
         });
         
-        // Line breaks (only outside code blocks)
         formatted = formatted.replace(/(?<!<\/pre>)\n/g, '<br>');
         
         return formatted;
@@ -2004,7 +1897,6 @@ class GeminiClone {
             return;
         }
 
-        // מצא את הודעת המשתמש הקודמת
         let userMessageIndex = messageIndex - 1;
         if (userMessageIndex < 0 || messages[userMessageIndex].role !== 'user') {
             this.showToast('לא נמצאה הודעת משתמש קודמת', 'error');
@@ -2013,12 +1905,10 @@ class GeminiClone {
 
         const userMessage = messages[userMessageIndex];
 
-        // טעינת הקבצים של ההודעה עם בדיקת תקינות
         this.files = [];
         if (userMessage.files && userMessage.files.length > 0) {
             try {
                 this.files = userMessage.files.filter(file => {
-                    // בדיקה שהקובץ תקין
                     if (!file.base64 || !/^[A-Za-z0-9+/=]+$/.test(file.base64)) {
                         console.warn('Invalid base64 for file:', file.name);
                         this.showToast(`קובץ לא תקין: ${file.name}`, 'error');
@@ -2038,16 +1928,11 @@ class GeminiClone {
             }
         }
 
-        // רינדור תצוגה מקדימה של הקבצים
         this.renderFilePreview();
-
-        // מחק את הודעת העוזר ואת כל ההודעות שאחריה
         this.chats[this.currentChatId].messages = messages.slice(0, userMessageIndex + 1);
         this.chats[this.currentChatId].updatedAt = new Date().toISOString();
         this.saveChatData();
         this.renderMessages();
-
-        // שלח מחדש את הודעת המשתמש
         this.setLoading(true);
         this.startFakeProgressBar();
         this.showLoadingSteps();
@@ -2087,14 +1972,12 @@ class GeminiClone {
             .finally(() => {
                 this.setLoading(false);
                 this.stopFakeProgressBar();
-                // ניקוי הקבצים לאחר שליחה או כשלון
                 this.files = [];
                 this.renderFilePreview();
             });
     }
 
     bindMessageActions() {
-        // Copy code button functionality
         document.querySelectorAll('.copy-code-btn').forEach(btn => {
             btn.onclick = (e) => {
                 const code = btn.parentElement.querySelector('code').innerText;
@@ -2104,7 +1987,6 @@ class GeminiClone {
             };
         });
 
-        // Retry message button
         document.querySelectorAll('.retry-btn').forEach(btn => {
             btn.onclick = (e) => {
                 const msgEl = btn.closest('.message');
@@ -2114,7 +1996,6 @@ class GeminiClone {
             };
         });
         
-        // Copy message button
         document.querySelectorAll('.copy-btn').forEach(btn => {
             btn.onclick = (e) => {
                 const msg = btn.closest('.message').querySelector('.message-content').innerText;
@@ -2124,7 +2005,6 @@ class GeminiClone {
             };
         });
         
-        // Share message button
         document.querySelectorAll('.share-btn').forEach(btn => {
             btn.onclick = (e) => {
                 const msg = btn.closest('.message').querySelector('.message-content').innerText;
@@ -2134,7 +2014,6 @@ class GeminiClone {
             };
         });
         
-        // Delete message button
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.onclick = (e) => {
                 const msgEl = btn.closest('.message');
@@ -2144,7 +2023,6 @@ class GeminiClone {
             };
         });
         
-        // Edit message button
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.onclick = (e) => {
                 const msgEl = btn.closest('.message');
@@ -2154,7 +2032,6 @@ class GeminiClone {
             };
         });
 
-        // Like / Dislike buttons
         document.querySelectorAll('.message').forEach(messageEl => {
             const likeBtn = messageEl.querySelector('.like-btn');
             const dislikeBtn = messageEl.querySelector('.dislike-btn');
@@ -2242,12 +2119,10 @@ class GeminiClone {
 
         const message = messages[messageIndex];
 
-        // טעינת תוכן ההודעה לתיבת הקלט
         this.messageInput.value = message.content;
         this.updateCharCount();
         this.messageInput.focus();
 
-        // טעינת הקבצים המצורפים של ההודעה (רק אם יש base64)
         this.files = (message.files || []).filter(file => file.base64).map(file => ({
             name: file.name,
             size: file.size,
@@ -2257,7 +2132,6 @@ class GeminiClone {
         this.filess = this.files;
         this.renderFilePreview();
 
-        // הסרת ההודעה הנערכת ואת כל ההודעות שאחריה
         this.chats[this.currentChatId].messages = messages.slice(0, messageIndex);
         this.chats[this.currentChatId].updatedAt = new Date().toISOString();
         this.saveChatData();
@@ -2267,7 +2141,6 @@ class GeminiClone {
 
     renderChatHistory() {
         if (this.searchQuery) {
-            // אם יש שאילתת חיפוש פעילה, השתמש ב-filterChatHistory
             this.filterChatHistory();
             return;
         }
@@ -2288,7 +2161,7 @@ class GeminiClone {
 
         const sortedChats = chatArray.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
         this.chatHistory.innerHTML = sortedChats.map(chat => {
-            console.log(`Rendering chat ID: ${chat.id}, SystemPrompt: ${chat.systemPrompt}, IconHtml: ${this.getPromptIcon(chat.systemPrompt).iconHtml}`); // דיבאג
+            console.log(`Rendering chat ID: ${chat.id}, SystemPrompt: ${chat.systemPrompt}, IconHtml: ${this.getPromptIcon(chat.systemPrompt).iconHtml}`);
             return `
                 <div class="history-item ${chat.id === this.currentChatId ? 'active' : ''}" data-chat-id="${chat.id}">
                     <div class="history-item-title">${this.getPromptIcon(chat.systemPrompt).iconHtml}${chat.title}</div>
@@ -2359,7 +2232,7 @@ class GeminiClone {
             action: {
                 text: 'בטל',
                 callback: () => {
-                    console.log('Restoring chat:', chatId); // דיבוג
+                    console.log('Restoring chat:', chatId);
                     this.chats[chatId] = deletedChat;
                     this.saveChatData();
                     this.renderChatHistory();
@@ -2426,25 +2299,17 @@ class GeminiClone {
     }
 
     cleanFileName(name) {
-        // הסרת תווים לא חוקיים לשמות קבצים, שמירה על תווים עבריים
         return name.replace(/[<>:"\/\\|?*\x00-\x1F]/g, '_').trim();
     }
 
     exportToPdf(chat, includeTimestamps, includeSystemPrompts) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-
-        // שימוש בגופן מובנה תומך עברית (Helvetica)
         doc.setFont('Helvetica', 'normal');
         doc.setFontSize(20);
-        
-        // כותרת הצ'אט, מיושר לימין
         doc.text(chat.title, 190, 20, { align: 'right' });
-
         doc.setFontSize(12);
         let y = 40;
-
-        // הוספת System Prompt אם נבחר
         if (includeSystemPrompts && chat.systemPrompt && this.isSystemPromptAllowed(chat.systemPrompt)) {
             doc.setFont('Helvetica', 'italic');
             doc.text('System Prompt:', 190, y, { align: 'right' });
@@ -2455,8 +2320,6 @@ class GeminiClone {
             doc.text(systemPromptLines, 190, y, { align: 'right' });
             y += systemPromptLines.length * 7 + 10;
         }
-
-        // הוספת כל ההודעות
         for (const msg of chat.messages) {
             const role = msg.role === 'user' ? 'אתה' : this.getPromptIcon(chat.systemPrompt).label;
 
@@ -2473,8 +2336,6 @@ class GeminiClone {
             }
 
             y += 7;
-
-            // ניקוי התוכן עבור PDF
             const content = msg.content.replace(/```[\s\S]*?```/g, '[CODE BLOCK]')
                                    .replace(/<[^>]*>/g, '')
                                    .replace(/\!\[.*?\]\(.*?\)/g, '[IMAGE]')
@@ -2497,21 +2358,17 @@ class GeminiClone {
             }
         }
 
-        // הוספת תחתית
         const date = new Date().toLocaleString('he-IL');
         doc.setFontSize(8);
         doc.setTextColor(100, 100, 100);
         doc.text(`יוצא ב: ${date}`, 20, 290);
         doc.text('Gemini Clone', 190, 290, { align: 'right' });
-
-        // שמירת הקובץ עם השם המעודכן: chat_Gemini_<שם_הצ'אט>
         const cleanTitle = this.cleanFileName(chat.title);
         doc.save(`chat_Gemini_${cleanTitle}`);
         this.showToast('הצ\'אט יוצא בהצלחה ל-PDF', 'success');
     }
 
     exportToDocx(chat, includeTimestamps, includeSystemPrompts) {
-        // יצירת HTML עם תאימות משופרת ל-Word
         let html = `<!DOCTYPE html>
         <html dir="rtl" lang="he">
         <head>
@@ -2624,17 +2481,14 @@ class GeminiClone {
         <body>
             <div class="title">${chat.title}</div>`;
 
-        // הוספת System Prompt אם נבחר
         if (includeSystemPrompts && chat.systemPrompt && this.isSystemPromptAllowed(chat.systemPrompt)) {
             html += `<div class="system-prompt">
                 <div>System Prompt:</div>
                 <div>${this.formatMessageContent(chat.systemPrompt)}</div>
             </div>`;
         }
-
-        // הוספת כל ההודעות עם עיצוב Markdown מלא
         for (const msg of chat.messages) {
-            const role = msg.role === 'user' ? 'אתה' : this.getPromptIcon(chat.systemPrompt).label; // שימוש בשם העוזר
+            const role = msg.role === 'user' ? 'אתה' : this.getPromptIcon(chat.systemPrompt).label;
             const roleClass = msg.role === 'user' ? 'user' : 'assistant';
 
             html += `<div class="message">
@@ -2652,8 +2506,6 @@ class GeminiClone {
         }
 
         html += `</body></html>`;
-
-        // יצירת Blob והורדה כקובץ doc
         const blob = new Blob([new TextEncoder().encode(html)], { type: 'application/msword' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -2684,7 +2536,6 @@ class GeminiClone {
             text += `:\n${msg.content}\n\n`;
         }
 
-        // יצירת Blob והורדה
         const blob = new Blob([new TextEncoder().encode(text)], { type: 'text/plain' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -2708,7 +2559,6 @@ class GeminiClone {
         const currentText = this.messageInput.value;
         
         if (action === 'translate') {
-            // Translation without API: open translate.google.com with the text
             const isHebrew = /[\u0590-\u05FF]/.test(currentText);
             const targetLang = isHebrew ? 'en' : 'he';
             window.open(`https://translate.google.com/?sl=auto&tl=${targetLang}&text=${encodeURIComponent(currentText)}`, '_blank');
@@ -2738,7 +2588,6 @@ class GeminiClone {
         this.contextMenu.style.left = x + 'px';
         this.contextMenu.style.top = y + 'px';
 
-        // הצג/הסתר כפתור עריכה לפי סוג ההודעה
         const editItem = this.contextMenu.querySelector('[data-action="edit"]');
         if (messageElement.classList.contains('user')) {
             editItem.style.display = '';
@@ -2789,7 +2638,6 @@ class GeminiClone {
         }
         this.sendBtn.disabled = loading || !this.messageInput.value.trim();
 
-        // Stop button in loading overlay
         let stopBtnInOverlay = document.getElementById('stopBtnInOverlay');
         if (!stopBtnInOverlay) {
             stopBtnInOverlay = document.createElement('button');
@@ -2801,7 +2649,6 @@ class GeminiClone {
         }
         stopBtnInOverlay.style.display = (loading && !this.settings.hideLoadingOverlay) ? 'inline-flex' : 'none';
 
-        // Hide bottom stop button
         this.stopBtn.style.display = 'none';
 
         if (!loading && this.loadingInterval) {
@@ -2810,7 +2657,6 @@ class GeminiClone {
                 step.classList.remove('active');
             });
         }
-        // רינדור מחדש של ההודעות כדי להציג/להסתיר את מחוון הנקודות
         if (this.settings.hideLoadingOverlay) {
             this.renderMessages();
         }
@@ -2974,7 +2820,6 @@ class GeminiClone {
             return;
         }
 
-        // מציאת ההודעה האחרונה של המשתמש
         let userMessageIndex = messages.length - 1;
         while (userMessageIndex >= 0 && messages[userMessageIndex].role !== 'user') {
             userMessageIndex--;
@@ -2987,7 +2832,6 @@ class GeminiClone {
 
         const lastUserMessage = messages[userMessageIndex];
 
-        // טעינת הקבצים המצורפים של ההודעה (רק אם יש base64)
         this.files = (lastUserMessage.files || []).filter(file => file.base64).map(file => ({
             name: file.name,
             size: file.size,
@@ -2997,13 +2841,11 @@ class GeminiClone {
         this.filess = this.files;
         this.renderFilePreview();
 
-        // הסרת תגובת העוזר האחרונה (אם קיימת)
         this.chats[this.currentChatId].messages = messages.slice(0, userMessageIndex + 1);
         this.chats[this.currentChatId].updatedAt = new Date().toISOString();
         this.saveChatData();
         this.renderMessages();
 
-        // שליחת ההודעה מחדש עם הקבצים
         this.setLoading(true);
         this.startFakeProgressBar();
         this.showLoadingSteps();
@@ -3043,7 +2885,6 @@ class GeminiClone {
             .finally(() => {
                 this.setLoading(false);
                 this.stopFakeProgressBar();
-                // ניקוי הקבצים לאחר יצירה מחדש
                 this.files = [];
                 this.filess = [];
                 this.renderFilePreview();
