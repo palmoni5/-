@@ -77,7 +77,6 @@ class GeminiClone {
         this.tokenLimitDisabled = localStorage.getItem('token-limit-disabled') === 'true';
         this.abortController = null;
         this.files = [];
-	this.filess = [];
         this.generationProgress = 0;
         this.progressInterval = null;
         this.searchQuery = '';
@@ -106,7 +105,7 @@ class GeminiClone {
     initializePageSpecificSettings() {
         const pageConfig = this.pageConfig;
         if (pageConfig === 'chat-page') {
-            this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. ההבחנה בין שיחות נפרדות תסומן באמצעות [END_CHAT: כותרת] בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה  שנמצאת('[END_CHAT: ]') בתגובות והתייחס לשיחה בהתאם לשמה המופיע בכותרת בלבד. Please use the provided conversation history to inform your response.";
+            this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. ההבחנה בין שיחות נפרדות תהיה באמצעות [END_CHAT: כותרת] שנמצאת בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה ('[END_CHAT: ]') בתגובות בשום אופן גם לא לשם ציון סיום שיחה והתייחס לשיחה בהתאם לשמה המופיע בכותרת בלבד, אך אל תזכיר שהיא מופיעה בסיום השיחה, אלא כתוב שזו כותרת השיחה. Please use the provided conversation history to inform your response.";
         } else if (pageConfig === 'nati-page') {
             this.systemPrompt = "אתה 'נתי', בחור ישיבה מבוגר רווק, עייף, ועצבני על כל העולם. ענה תשובות שנונות ועוקצות. 'רד' על המשתמש. העלב אותו בכל הזדמנות ודקור אותו במדקרות פה. צלה אותו ואל תתאפק. אל תתיחס אל עצמך כאל מודל אלא כבחור ישיבה רווק מבוגר. ענה בנוסח ישיבתי ועוקצני. אבל אל תשתמש במילים לא ראויות. ענה בצורה כשרה.";
             localStorage.removeItem('gemini-system-prompt');
@@ -251,7 +250,6 @@ class GeminiClone {
     }
 
     initializeElements() {
-        // Main UI elements
         this.sidebar = document.getElementById('sidebar');
         this.sidebarToggle = document.getElementById('sidebarToggle');
         this.newChatBtn = document.getElementById('newChatBtn');
@@ -271,7 +269,6 @@ class GeminiClone {
         this.historyToggle = document.querySelector('.history-toggle');
         this.loadPageBtn = document.getElementById('loadPageBtn');
         
-        // API & Model Settings
         this.geminiApiKey = document.getElementById('geminiApiKey');
         this.geminiModel = document.getElementById('geminiModel');
         this.systemPromptInput = document.getElementById('systemPrompt');
@@ -288,7 +285,6 @@ class GeminiClone {
         this.topKValue = document.getElementById('topKValue');
         this.apiStatus = document.getElementById('apiStatus');
 
-        // Chat Interface
         this.mainContent = document.getElementById('mainContent');
         this.welcomeScreen = document.getElementById('welcomeScreen');
         this.chatMessages = document.getElementById('chatMessages');
@@ -303,19 +299,16 @@ class GeminiClone {
         this.modelInfo = document.getElementById('modelInfo');
         this.attachBtn = document.getElementById('attachBtn');
         this.micBtn = document.getElementById('micBtn');
-        this.maxMessagesSelect = document.getElementById('maxMessagesSelect');
+        this.maxMessagesSelect = document.getElementById('maxMessagesSelect'); 
         
-        // Loading & Notifications
         this.loadingOverlay = document.getElementById('loadingOverlay');
         this.loadingMessage = document.getElementById('loadingMessage');
         this.loadingProgress = document.getElementById('loadingProgress');
         this.toastContainer = document.getElementById('toastContainer');
         
-        // Context Menu & File Handling
         this.contextMenu = document.getElementById('contextMenu');
         this.filePreviewList = document.getElementById('filePreviewList');
         
-        // Export Modal
         this.exportModal = document.getElementById('exportModal');
         this.closeExportModal = document.getElementById('closeExportModal');
         this.cancelExport = document.getElementById('cancelExport');
@@ -418,6 +411,7 @@ class GeminiClone {
         }
 
         this.customProfileOption = document.getElementById('customProfileOption');
+        this.messageInput.addEventListener('paste', (e) => this.handlePaste(e));
 
         if (this.includeAllChatHistoryCheckbox) {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
@@ -537,7 +531,7 @@ class GeminiClone {
                 this.historySearch.value = '';
                 this.filterChatHistory();
             });
-        }
+        }   
         
         // Settings controls
         this.geminiApiKey.addEventListener('input', (e) => this.saveApiKey(e.target.value));
@@ -667,6 +661,26 @@ class GeminiClone {
         this.settings.includeAllChatHistory = checked;
         this.saveSettings();
     }
+
+    handlePaste(e) {
+        e.preventDefault();
+        const items = e.clipboardData.items;
+        const files = Array.from(items)
+            .filter(item => item.kind === 'file')
+            .map(item => item.getAsFile())
+            .filter(file => file && file.type);
+
+        if (files.length > 0) {
+            this.files.push(...files);
+            this.renderFilePreview();
+        } else {
+            const text = e.clipboardData.getData('text/plain');
+            if (text) {
+                this.messageInput.value += text;
+                this.updateCharCount();
+            }
+        }
+    } 
 
     inputWrapper() {
         return this.messageInput.closest('.input-wrapper');
@@ -885,8 +899,6 @@ class GeminiClone {
         this.messageInput.value = '';
         this.updateCharCount();
         this.messageInput.style.height = 'auto';
-        this.files = [];
-        this.renderFilePreview();
         if (this.loadingOverlay) this.loadingOverlay.style.display = 'none';
         if (this.stopBtn) this.stopBtn.style.display = 'none';
         this.setLoading(false);
@@ -1306,14 +1318,31 @@ class GeminiClone {
     }
 
     async sendMessage() {
-        const message = this.messageInput.value.trim();
-        console.log("sendMessage called at:", new Date().toISOString(), "Message:", message);
-        if (!message || this.isLoading) {
-            console.log("sendMessage blocked: empty message or loading");
-            return;
+        if (!this.currentChatId) {
+            this.currentChatId = this.generateChatId();
+            this.chats[this.currentChatId] = {
+                id: this.currentChatId,
+                title: 'צ\'אט חדש',
+                messages: [],
+                systemPrompt: this.systemPrompt,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            this.showChatInterface();
         }
 
-        if (!message || this.isLoading) return;
+        const message = this.messageInput.value.trim();
+        console.log("sendMessage called at:", new Date().toISOString(), "Message:", message);
+        if (!message && this.files.length === 0) {
+            console.log("sendMessage blocked: no message or files");
+            this.showToast('אנא הזן הודעה או צרף קובץ', 'error');
+            return;
+        }
+        if (this.isLoading) {
+            console.log("sendMessage blocked: loading");
+            this.showToast('נא להמתין עד לסיום התגובה הקודמת', 'error');
+            return;
+        }
         if (!this.apiKey) {
             this.showToast('אנא הזן API Key עבור Gemini', 'error');
             return;
@@ -1321,57 +1350,103 @@ class GeminiClone {
         if (!this.currentChatId) {
             this.startNewChat();
         }
-        
+
+         // הכנת הקבצים עבור ההודעה
+        let messageFiles = [];
+        try {
+            const supportedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf', 'text/plain'];
+            messageFiles = await Promise.all(this.files.map(async file => {
+                // בדיקה שהקובץ תקין (File/Blob או עצם עם תכונות מתאימות)
+                if (!(file instanceof File || file instanceof Blob || (file.name && file.size && file.type && file.base64))) {
+                    console.warn("Invalid file object:", file);
+                    throw new Error('קובץ לא תקין: ' + (file.name || 'לא ידוע'));
+                }
+                // בדיקת סוג MIME
+                if (!supportedMimeTypes.includes(file.type)) {
+                    console.warn("Unsupported MIME type for file:", file.name, file.type);
+                    throw new Error('סוג קובץ לא נתמך: ' + file.name);
+                }
+                // אם לקובץ יש base64, השתמש בו
+                if (file.base64) {
+                    if (!/^[A-Za-z0-9+/=]+$/.test(file.base64)) {
+                        console.warn("Invalid base64 format for file:", file.name);
+                        throw new Error('פורמט Base64 לא תקין: ' + file.name);
+                    }
+                    return {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        base64: file.base64.startsWith('data:') ? file.base64.split(',')[1] : file.base64
+                    };
+                }
+                // המר את הקובץ ל-base64
+                const base64 = await this.readFileAsBase64(file);
+                return {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    base64: base64
+                };
+            }));
+        } catch (error) {
+            this.showToast('שגיאה בהכנת קבצים: ' + error.message, 'error');
+            console.error('File Processing Error:', error);
+            return;
+        }
+
         const userMessage = {
             id: this.generateMessageId(),
             role: 'user',
             content: message,
             timestamp: new Date().toISOString(),
-            files: this.filess.map(f => ({ name: f.name, size: f.size, type: f.type }))
+            files: messageFiles
         };
-        
+
         this.chats[this.currentChatId].messages.push(userMessage);
         this.chats[this.currentChatId].updatedAt = new Date().toISOString();
-        
-        // Update chat title with first message
+
+        // עדכון כותרת הצ'אט בהודעה הראשונה
         if (this.chats[this.currentChatId].messages.length === 1) {
-            const title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
+            const title = message.length > 20 ? message.substring(0, 20) + '...' : message || 'צ\'אט עם קבצים';
             this.chats[this.currentChatId].title = title;
             this.updateChatTitle(title);
         }
-        
+
+        // ניקוי הקבצים לאחר הוספתם להודעה
+        this.files = [];
+        this.filess = [];
+        this.renderFilePreview();
+
         this.saveChatData();
         this.renderMessages();
         this.renderChatHistory();
         this.messageInput.value = '';
         this.updateCharCount();
         this.messageInput.style.height = 'auto';
-        this.files = [];
-        this.renderFilePreview();
-        
+
         this.setLoading(true);
         this.startFakeProgressBar();
         this.showLoadingSteps();
         this.abortController = new AbortController();
-        
+
         try {
             let systemPrompt;
             if (this.pageConfig === 'chat-page') {
                 systemPrompt = this.CONSTANT_SYSTEM_PROMPT + (this.systemPrompt ? '\n' + this.systemPrompt : '');
             } else {
-                systemPrompt = this.systemPrompt; // עבור trump-page ו-nati-page, השתמש ב-this.systemPrompt בלבד
+                systemPrompt = this.systemPrompt;
             }
 
-            // הכנת ההודעות ל-API כולל systemPrompt
             const messages = [
                 { role: 'system', content: systemPrompt },
                 ...(this.settings.includeChatHistory ? this.chats[this.currentChatId].messages.map(msg => ({
                     role: msg.role,
-                    content: msg.content
-                })) : [{ role: 'user', content: message }])
+                    content: msg.content,
+                    files: msg.files || []
+                })) : [{ role: 'user', content: message, files: messageFiles }])
             ];
 
-            const response = await this.callGemini(message, this.abortController.signal);
+            const response = await this.callGemini(message, this.abortController.signal, messageFiles);
             const assistantMessage = {
                 id: this.generateMessageId(),
                 role: 'assistant',
@@ -1380,7 +1455,7 @@ class GeminiClone {
                 model: this.currentModel,
                 vote: null
             };
-            
+
             this.chats[this.currentChatId].messages.push(assistantMessage);
             this.chats[this.currentChatId].updatedAt = new Date().toISOString();
             this.saveChatData();
@@ -1388,6 +1463,9 @@ class GeminiClone {
         } catch (error) {
             if (error.name === 'AbortError') {
                 this.showToast('התגובה הופסקה', 'error');
+            } else if (error.message.includes('net::ERR_INTERNET_DISCONNECTED')) {
+                this.showToast('אין חיבור לאינטרנט. אנא בדוק את החיבור ונסה שוב', 'error');
+                console.error('Network Error:', error);
             } else {
                 this.showToast('שגיאה בשליחת ההודעה: ' + error.message, 'error');
                 console.error('API Error:', error);
@@ -1396,7 +1474,7 @@ class GeminiClone {
             this.setLoading(false);
             this.stopFakeProgressBar();
         }
-        
+
         setTimeout(() => {
             this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
         }, 100);
@@ -1466,13 +1544,15 @@ class GeminiClone {
         this.loadingInterval = interval;
     }
 
-    async callGemini(message, signal) {
-        const url = "https://generativelanguage.googleapis.com/v1beta/models/" + this.currentModel + ":generateContent?key=" + this.apiKey;
+    async callGemini(message, signal, files = []) {
+        if (!this.apiKey) {
+            throw new Error('מפתח API לא מוגדר');
+        }
 
-        // פונקציה משופרת לספירת טוקנים
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.currentModel}:generateContent?key=${this.apiKey}`;
+
         const estimateTokens = (text) => {
-            if (!text) return 0;
-            const words = text.trim().split(/\s+/).length;
+            const words = text.split(/\s+/).length;
             const chars = text.length;
             return Math.ceil((words * 0.75) + (chars / 6));
         };
@@ -1564,77 +1644,78 @@ class GeminiClone {
             }
         }
 
-        console.log("Conversation History:", JSON.stringify(conversationHistory, null, 2));
-        console.log("Current Chat Messages:", JSON.stringify(currentChatMessages, null, 2));
-        const totalLength = conversationHistory.reduce((sum, msg) => sum + msg.content.length, 0);
-        const totalTokens = conversationHistory.reduce((sum, msg) => sum + estimateTokens(msg.content), 0);
-        console.log("Total history length (characters):", totalLength);
-        console.log("Estimated tokens:", totalTokens);
-
         const messages = conversationHistory.map(msg => ({
             role: msg.role === "assistant" ? "model" : "user",
-            parts: [{ text: msg.content }]
+            parts: [
+                { text: msg.content },
+                ...(msg.files || []).map(file => ({
+                    inlineData: {
+                        mimeType: file.type,
+                        data: file.base64
+                    }
+                }))
+            ]
         }));
 
-        // Use the initial system prompt from the current chat
         let systemPromptText = this.chats[this.currentChatId]?.systemPrompt || '';
         if (this.pageConfig === 'chat-page') {
             systemPromptText = this.CONSTANT_SYSTEM_PROMPT + (systemPromptText ? '\n' + systemPromptText : '');
         }
-
-        console.log("System Prompt Used:", systemPromptText);
 
         messages.unshift({
             role: "user",
             parts: [{ text: "הנחיית מערכת: " + systemPromptText }]
         });
 
-        const fileParts = this.filess.length > 0 ? await Promise.all(this.filess.map(async file => ({
+        const fileParts = files.length > 0 ? files.map(file => ({
             inlineData: {
                 mimeType: file.type,
-                data: await this.readFileAsBase64(file)
+                data: file.base64
             }
-        }))) : [];
+        })) : [];
 
         messages.push({
             role: "user",
             parts: [{ text: message }, ...fileParts]
         });
 
-        console.log("Messages sent to API:", JSON.stringify(messages, null, 2));
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: messages,
+                    generationConfig: {
+                        temperature: this.settings.temperature,
+                        topK: this.settings.topK,
+                        topP: this.settings.topP,
+                        maxOutputTokens: this.tokenLimitDisabled ? undefined : this.settings.maxTokens
+                    },
+                    safetySettings: [
+                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
+                    ]
+                }),
+                signal
+            });
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                contents: messages,
-                generationConfig: {
-                    temperature: this.settings.temperature,
-                    topK: this.settings.topK,
-                    topP: this.settings.topP,
-                    maxOutputTokens: this.tokenLimitDisabled ? undefined : this.settings.maxTokens
-                },
-                safetySettings: [
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
-                ]
-            }),
-            signal
-        });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || "Gemini API Error");
+            }
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || "Gemini API Error");
+            const data = await response.json();
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+                throw new Error("תגובה לא תקינה מ-Gemini API");
+            }
+
+            return data.candidates[0].content.parts[0].text;
+        } catch (error) {
+            if (error.message.includes('net::ERR_INTERNET_DISCONNECTED')) {
+                throw new Error('אין חיבור לאינטרנט');
+            }
+            throw error;
         }
-
-        const data = await response.json();
-        console.log("API Response:", JSON.stringify(data, null, 2));
-
-        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-            throw new Error("תגובה לא תקינה מ-Gemini API");
-        }
-
-        return data.candidates[0].content.parts[0].text;
     }
 
     abortGeneration() {
@@ -1849,21 +1930,56 @@ class GeminiClone {
             return;
         }
 
+        const userMessage = messages[userMessageIndex];
+
+        // טעינת הקבצים של ההודעה עם בדיקת תקינות
+        const supportedMimeTypes = ['image/png', 'image/jpeg', 'application/pdf', 'text/plain'];
+        this.files = [];
+        if (userMessage.files && userMessage.files.length > 0) {
+            try {
+                this.files = userMessage.files.filter(file => {
+                    // בדיקה שהקובץ תקין
+                    if (!file.base64 || !/^[A-Za-z0-9+/=]+$/.test(file.base64)) {
+                        console.warn('Invalid base64 for file:', file.name);
+                        this.showToast(`קובץ לא תקין: ${file.name}`, 'error');
+                        return false;
+                    }
+                    // בדיקת סוג MIME
+                    if (!supportedMimeTypes.includes(file.type)) {
+                        console.warn('Unsupported MIME type for file:', file.name, file.type);
+                        this.showToast(`סוג קובץ לא נתמך: ${file.name}`, 'error');
+                        return false;
+                    }
+                    return true;
+                }).map(file => ({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    base64: file.base64.startsWith('data:') ? file.base64.split(',')[1] : file.base64
+                }));
+            } catch (error) {
+                this.showToast('שגיאה בטעינת קבצים: ' + error.message, 'error');
+                console.error('File Processing Error:', error);
+                return;
+            }
+        }
+
+        // רינדור תצוגה מקדימה של הקבצים
+        this.renderFilePreview();
+
         // מחק את הודעת העוזר ואת כל ההודעות שאחריה
         this.chats[this.currentChatId].messages = messages.slice(0, userMessageIndex + 1);
+        this.chats[this.currentChatId].updatedAt = new Date().toISOString();
         this.saveChatData();
         this.renderMessages();
 
         // שלח מחדש את הודעת המשתמש
-        const userMessage = messages[userMessageIndex].content;
-        this.files = messages[userMessageIndex].files || []; // שחזר קבצים אם יש
-        this.renderFilePreview();
         this.setLoading(true);
         this.startFakeProgressBar();
         this.showLoadingSteps();
         this.abortController = new AbortController();
 
-        this.callGemini(userMessage, this.abortController.signal)
+        this.callGemini(userMessage.content, this.abortController.signal, this.files)
             .then(response => {
                 const assistantMessage = {
                     id: this.generateMessageId(),
@@ -1871,8 +1987,7 @@ class GeminiClone {
                     content: response,
                     timestamp: new Date().toISOString(),
                     model: this.currentModel,
-                vote: null
-
+                    vote: null
                 };
 
                 this.chats[this.currentChatId].messages.push(assistantMessage);
@@ -1887,13 +2002,20 @@ class GeminiClone {
             .catch(error => {
                 if (error.name === 'AbortError') {
                     this.showToast('התגובה הופסקה', 'error');
+                } else if (error.message.includes('net::ERR_INTERNET_DISCONNECTED')) {
+                    this.showToast('אין חיבור לאינטרנט. אנא בדוק את החיבור ונסה שוב', 'error');
+                    console.error('Network Error:', error);
                 } else {
                     this.showToast('שגיאה בניסיון מחדש: ' + error.message, 'error');
+                    console.error('API Error:', error);
                 }
             })
             .finally(() => {
                 this.setLoading(false);
                 this.stopFakeProgressBar();
+                // ניקוי הקבצים לאחר שליחה או כשלון
+                this.files = [];
+                this.renderFilePreview();
             });
     }
 
@@ -2035,28 +2157,39 @@ class GeminiClone {
 
     editMessage(messageId) {
         if (!this.currentChatId) return;
-        
+
         const messages = this.chats[this.currentChatId].messages;
         const messageIndex = messages.findIndex(msg => msg.id === messageId);
-        
-        if (messageIndex !== -1) {
-            const message = messages[messageIndex];
-            
-            // Only edit user messages
-            if (message.role === 'user') {
-                this.messageInput.value = message.content;
-                this.updateCharCount();
-                this.messageInput.focus();
-                
-                // Remove the message and all subsequent messages
-                this.chats[this.currentChatId].messages = messages.slice(0, messageIndex);
-                this.saveChatData();
-                this.renderMessages();
-                this.showToast('ערוך את ההודעה ושלח שוב', 'success');
-            }
-        }
-    }
 
+        if (messageIndex === -1 || messages[messageIndex].role !== 'user') {
+            this.showToast('לא ניתן לערוך הודעה זו', 'error');
+            return;
+        }
+
+        const message = messages[messageIndex];
+
+        // טעינת תוכן ההודעה לתיבת הקלט
+        this.messageInput.value = message.content;
+        this.updateCharCount();
+        this.messageInput.focus();
+
+        // טעינת הקבצים המצורפים של ההודעה (רק אם יש base64)
+        this.files = (message.files || []).filter(file => file.base64).map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            base64: file.base64
+        }));
+        this.filess = this.files;
+        this.renderFilePreview();
+
+        // הסרת ההודעה הנערכת ואת כל ההודעות שאחריה
+        this.chats[this.currentChatId].messages = messages.slice(0, messageIndex);
+        this.chats[this.currentChatId].updatedAt = new Date().toISOString();
+        this.saveChatData();
+        this.renderMessages();
+        this.showToast('ערוך את ההודעה ושלח שוב', 'success');
+    }
 
     renderChatHistory() {
         if (this.searchQuery) {
@@ -2669,7 +2802,6 @@ class GeminiClone {
             this.renderFilePreview();
         };
         
-        this.filess = this.files;
         input.click();
     }
 
@@ -2746,7 +2878,7 @@ class GeminiClone {
             return;
         }
 
-        // מצא את הודעת המשתמש האחרונה
+        // מציאת ההודעה האחרונה של המשתמש
         let userMessageIndex = messages.length - 1;
         while (userMessageIndex >= 0 && messages[userMessageIndex].role !== 'user') {
             userMessageIndex--;
@@ -2757,19 +2889,31 @@ class GeminiClone {
             return;
         }
 
-        // הסר את כל ההודעות שאחריה (אם קיימת תגובת עוזר)
+        const lastUserMessage = messages[userMessageIndex];
+
+        // טעינת הקבצים המצורפים של ההודעה (רק אם יש base64)
+        this.files = (lastUserMessage.files || []).filter(file => file.base64).map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            base64: file.base64
+        }));
+        this.filess = this.files;
+        this.renderFilePreview();
+
+        // הסרת תגובת העוזר האחרונה (אם קיימת)
         this.chats[this.currentChatId].messages = messages.slice(0, userMessageIndex + 1);
+        this.chats[this.currentChatId].updatedAt = new Date().toISOString();
         this.saveChatData();
         this.renderMessages();
 
-        // שלח שוב את ההודעה
-        const lastUserMessage = messages[userMessageIndex].content;
+        // שליחת ההודעה מחדש עם הקבצים
         this.setLoading(true);
         this.startFakeProgressBar();
         this.showLoadingSteps();
         this.abortController = new AbortController();
 
-        this.callGemini(lastUserMessage, this.abortController.signal)
+        this.callGemini(lastUserMessage.content, this.abortController.signal, this.files)
             .then(response => {
                 const assistantMessage = {
                     id: this.generateMessageId(),
@@ -2792,13 +2936,21 @@ class GeminiClone {
             .catch(error => {
                 if (error.name === 'AbortError') {
                     this.showToast('התגובה הופסקה', 'error');
+                } else if (error.message.includes('net::ERR_INTERNET_DISCONNECTED')) {
+                    this.showToast('אין חיבור לאינטרנט. אנא בדוק את החיבור ונסה שוב', 'error');
+                    console.error('Network Error:', error);
                 } else {
                     this.showToast('שגיאה ביצירת תשובה מחדש: ' + error.message, 'error');
+                    console.error('API Error:', error);
                 }
             })
             .finally(() => {
                 this.setLoading(false);
                 this.stopFakeProgressBar();
+                // ניקוי הקבצים לאחר יצירה מחדש
+                this.files = [];
+                this.filess = [];
+                this.renderFilePreview();
             });
     }
 
