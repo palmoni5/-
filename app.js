@@ -776,7 +776,7 @@ class GeminiClone {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `gemini_clone_history_${new Date().toISOString().split('T')[0]}`;
+        link.download = `gemini_clone_history_${new Date().toISOString().split('T')[0]}.json`;
         link.click();
 
         this.showToast('היסטוריה והגדרות יוצאו בהצלחה', 'success');
@@ -1838,28 +1838,41 @@ class GeminiClone {
     
         let filesHtml = '';
         if (message.files && message.files.length) {
-            filesHtml = `<div class="file-preview-list" style="margin-top:8px;">` +
-                message.files.map(f => {
-                    if (f.type.startsWith('image/')) {
-                        return `
+            const images = message.files.filter(f => f.type.startsWith('image/'));
+            const otherFiles = message.files.filter(f => !f.type.startsWith('image/'));
+
+            filesHtml = '';
+        
+            // 🖼️ קטע התמונות עם כותרת
+            if (images.length) {
+                filesHtml += `
+                    <div class="file-preview-list images-only">
+                        ${images.map(f => `
                             <div class="image-thumbnail" title="${f.name}">
                                 <img src="data:${f.type};base64,${f.base64}" 
                                      alt="${f.name}" 
-                                     class="chat-thumbnail" 
+                                     class="chat-thumbnail"
                                      onclick="showLightbox('data:${f.type};base64,${f.base64}')">
                                 <div class="image-name">${f.name}</div>
-                            </div>`;
-                    } else {
-                        return `
+                            </div>
+                        `).join('')}
+                    </div>`;
+            }
+
+            // 📎 קטע הקבצים עם כותרת
+            if (otherFiles.length) {
+                filesHtml += `
+                    <div class="file-preview-list other-files">
+                        ${otherFiles.map(f => `
                             <div class="file-preview">
                                 <span class="material-icons">${this.getFileIcon(f)}</span>
                                 <span title="${f.name}">${f.name.length > 18 ? f.name.slice(0,15)+'...' : f.name}</span>
                                 <span>(${this.formatFileSize(f.size)})</span>
-                            </div>`;
-                    }
-                }).join('') + `</div>`;
+                            </div>
+                        `).join('')}
+                    </div>`;
+            }
         }
-
         
         return `
             <div class="message ${message.role}" data-message-id="${message.id}">
