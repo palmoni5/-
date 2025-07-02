@@ -2783,7 +2783,7 @@ class GeminiClone {
         const input = document.createElement('input');
         input.type = 'file';
         input.multiple = true;
-        input.accept = 'image/png,image/jpeg,image/webp,image/heic,image/heif,application/pdf,text/plain,text/markdown,audio/wav,audio/mp3,audio/aiff,audio/aac,audio/ogg,audio/flac,video/mp4,video/mpeg,video/mov,video/avi,video/x-flv,video/mpg,video/webm,video/wmv,video/3gpp,text/x-c,text/x-c++,text/x-python,text/x-java,application/x-httpd-php,text/x-sql,text/html,.c,.cpp,.py,.java,.php.ts,.sql,.html,text/javascript,.js';
+        input.accept = 'image/png,image/jpeg,image/webp,image/heic,image/heif,application/pdf,text/plain,text/markdown,audio/wav,audio/mp3,audio/aiff,audio/aac,audio/ogg,audio/flac,video/mp4,video/mpeg,video/mov,video/avi,video/x-flv,video/mpg,video/webm,video/wmv,video/3gpp,text/x-c,text/x-c++,text/x-python,text/x-java,application/x-httpd-php,text/x-sql,text/html,.c,.cpp,.py,.java,.php.ts,.ts,.sql,.html,text/javascript,text/typescript';
         input.onchange = (e) => {
             const allowedTypes = [
                 'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif',
