@@ -990,8 +990,10 @@ class GeminiClone {
 
     getModelDisplayName(modelId) {
         const models = {
+            'gemini-2.5-pro': 'gemini 2.5 pro',
+            'gemini-2.5-flash': 'gemini 2.5 flash',
+            'gemini-2.5-flash-lite-preview-06-17': 'Gemini Flash lite 2.5 (Preview)',
             'gemini-2.5-flash-preview-05-20': 'Gemini Flash 2.5 (Preview)',
-            'gemini-2.5-flash': 'Gemini 2.5 Flash',
             'gemini-2.0-flash-exp': 'Gemini 2.0 Flash Experimental',
             'gemini-1.5-flash': 'Gemini 1.5 Flash',
             'gemini-1.5-flash-8b': 'Gemini 1.5 Flash 8B',
