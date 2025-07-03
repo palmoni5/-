@@ -61,7 +61,7 @@ class GeminiClone {
         this.currentChatId = null;
         this.chats = JSON.parse(localStorage.getItem('gemini-chats') || '{}');
         this.apiKey = localStorage.getItem('gemini-api-key') || '';
-        this.currentModel = localStorage.getItem('gemini-model') || 'gemini-2.5-flash-preview-05-20';
+        this.currentModel = localStorage.getItem('gemini-model') || 'gemini-2.5-flash-lite-preview-06-17';
         this.chatHistoryEnabled = localStorage.getItem('chatHistoryEnabled') === 'true';
         this.settings = JSON.parse(localStorage.getItem('gemini-settings') || JSON.stringify({
             temperature: 0.7,
