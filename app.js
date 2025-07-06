@@ -265,6 +265,17 @@ class GeminiClone {
         this.historyToggle = document.querySelector('.history-toggle');
         this.loadPageBtn = document.getElementById('loadPageBtn');
         this.createImageLightbox();
+        this.shareBtn = document.getElementById('shareBtn');
+        this.regenerateBtn = document.getElementById('regenerateBtn');
+        if (!this.currentChatId) {
+            if (this.exportBtn) this.exportBtn.style.display = 'none';
+            if (this.shareBtn) this.shareBtn.style.display = 'none';
+            if (this.regenerateBtn) this.regenerateBtn.style.display = 'none';
+            if (this.exportDropdownBtn) this.exportDropdownBtn.style.display = 'none';
+            if (this.exportDropdownContent) this.exportDropdownContent.style.display = 'none';
+            const editChatTitleBtn = document.getElementById('editChatTitleBtn');
+            if (editChatTitleBtn) editChatTitleBtn.style.display = 'none';
+        }
         
         this.geminiApiKey = document.getElementById('geminiApiKey');
         this.geminiModel = document.getElementById('geminiModel');
@@ -900,9 +911,12 @@ class GeminiClone {
         this.welcomeScreen.style.display = 'flex';
         this.chatTitle.textContent = 'צ\'אט חדש';
         const editChatTitleBtn = document.getElementById('editChatTitleBtn');
-        if (editChatTitleBtn) {
-            editChatTitleBtn.style.display = 'none';
-        }
+        if (this.editChatTitleBtn) this.editChatTitleBtn.style.display = 'none';
+        if (this.exportBtn) this.exportBtn.style.display = 'none';
+        if (this.shareBtn) this.shareBtn.style.display = 'none';
+        if (this.regenerateBtn) this.regenerateBtn.style.display = 'none';
+        if (this.exportDropdownBtn) this.exportDropdownBtn.style.display = 'none';
+        if (this.exportDropdownContent) this.exportDropdownContent.style.display = 'none';
         this.messageInput.value = '';
         this.updateCharCount();
         this.messageInput.style.height = 'auto';
@@ -1320,6 +1334,12 @@ class GeminiClone {
                 updatedAt: new Date().toISOString()
             };
             this.showChatInterface();
+            if (this.exportBtn) this.exportBtn.style.display = 'inline-block';
+            if (this.shareBtn) this.shareBtn.style.display = 'inline-block';
+            if (this.regenerateBtn) this.regenerateBtn.style.display = 'inline-block';
+            if (this.exportDropdownBtn) this.exportDropdownBtn.style.display = 'inline-block';
+            if (this.exportDropdownContent) this.exportDropdownContent.style.display = 'block';
+            if (this.editChatTitleBtn) this.editChatTitleBtn.style.display = 'none';
         }
 
         const message = this.messageInput.value.trim();
@@ -2221,6 +2241,15 @@ class GeminiClone {
         if (editChatTitleBtn) {
             editChatTitleBtn.style.display = chat.title === 'צ\'אט חדש' ? 'none' : 'inline-block';
         }
+        if (this.exportBtn) {
+            this.exportBtn.style.display = 'inline-block';
+        }
+        if (this.shareBtn) {
+            this.shareBtn.style.display = 'inline-block';
+        }
+        if (this.regenerateBtn) {
+            this.regenerateBtn.style.display = 'inline-block';
+        }
     }
 
     deleteChat(chatId) {
@@ -2240,6 +2269,7 @@ class GeminiClone {
         this.saveChatData();
 
         if (chatId === currentChatId) {
+            this.resetToWelcomeScreen();
             this.currentChatId = null;
             this.welcomeScreen.style.display = 'flex';
             this.chatMessages.style.display = 'none';
