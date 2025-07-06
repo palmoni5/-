@@ -265,6 +265,7 @@ class GeminiClone {
         this.historyToggle = document.querySelector('.history-toggle');
         this.loadPageBtn = document.getElementById('loadPageBtn');
         this.createImageLightbox();
+        this.clearAllDataBtn = document.getElementById('clearAllDataBtn');
         this.shareBtn = document.getElementById('shareBtn');
         this.regenerateBtn = document.getElementById('regenerateBtn');
         if (!this.currentChatId) {
@@ -435,6 +436,11 @@ class GeminiClone {
         this.hideLoadingOverlayCheckbox.addEventListener('change', (e) => this.updateHideLoadingOverlay(e.target.checked));
         this.exportHistoryBtn.addEventListener('click', () => this.exportHistoryAndSettings());
         this.importHistoryBtn.addEventListener('click', () => this.handleImport());
+        if (this.clearAllDataBtn) {
+            this.clearAllDataBtn.addEventListener('click', () => this.clearAllData());
+        } else {
+            console.warn('clearAllDataBtn element not found');
+        }
 
         if (this.historySearch) {
             this.historySearch.addEventListener('input', () => this.debounceFilterChatHistory());
@@ -724,6 +730,58 @@ class GeminiClone {
         if (selectElement) {
             selectElement.style.display = this.includeAllChatHistoryCheckbox?.checked ? 'inline-block' : 'none';
         }
+    }
+
+    clearAllData() {
+        if (!confirm('האם אתה בטוח שברצונך למחוק את כל הנתונים השמורים, כולל היסטוריה, הגדרות והעדפות? פעולה זו בלתי הפיכה!')) {
+            return;
+        }
+
+        // מחיקת כל הנתונים מ-localStorage
+        localStorage.removeItem('gemini-chats');
+        localStorage.removeItem('gemini-api-key');
+        localStorage.removeItem('gemini-model');
+        localStorage.removeItem('chatHistoryEnabled');
+        localStorage.removeItem('gemini-settings');
+        localStorage.removeItem('gemini-system-prompt');
+        localStorage.removeItem('gemini-system-prompt-template');
+        localStorage.removeItem('luxury-mode');
+        localStorage.removeItem('token-limit-disabled');
+        localStorage.removeItem('user-profile-image');
+        localStorage.removeItem('use-custom-profile-image');
+        localStorage.removeItem('history-sidebar-collapsed');
+
+        // איפוס משתני האפליקציה
+        this.chats = {};
+        this.currentChatId = null;
+        this.apiKey = '';
+        this.currentModel = 'gemini-2.5-flash-lite-preview-06-17';
+        this.chatHistoryEnabled = true;
+        this.settings = {
+            temperature: 0.7,
+            maxTokens: 4096,
+            topP: 0.95,
+            topK: 40,
+            streamResponse: true,
+            includeChatHistory: true,
+            includeAllChatHistory: false,
+            hideLoadingOverlay: false
+        };
+        this.systemPrompt = '';
+        this.systemPromptTemplate = '';
+        this.isLuxuryMode = false;
+        this.tokenLimitDisabled = false;
+        this.userProfileImage = null;
+        this.files = [];
+
+        // איפוס ממשק המשתמש
+        this.resetToWelcomeScreen();
+        this.loadSettings();
+        this.loadTheme();
+        this.loadLuxuryMode();
+        this.renderChatHistory();
+
+        this.showToast('כל הנתונים נמחקו בהצלחה', 'success');
     }
 
     exportHistoryAndSettings() {
