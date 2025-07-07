@@ -1,3 +1,5 @@
+
+
 class GeminiClone {
     constructor() {
         this.iconMap = {
@@ -1075,10 +1077,22 @@ class GeminiClone {
         return models[modelId] || modelId;
     }
 
+    loadConfigScript() {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = '../config.js'; // הנתיב לקובץ config.js
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('שגיאה בטעינת config.js'));
+            document.head.appendChild(script);
+        });
+    }
+
     async validateApiKey() {
+        await this.loadConfigScript();
         if (!this.apiKey) return;
         try {
-            const response = await fetch(`https://${apiAddressToUse}/v1/models?key=${this.apiKey}`);
+            const response = await fetch(`https://${apiAddressToUse}.googleapis.com/v1/models?key=${this.apiKey}`);
             if (response.ok) {
                 this.showApiStatus('API Key תקף ומחובר', 'success');
             } else {

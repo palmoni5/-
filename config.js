@@ -1,1 +1,1 @@
-window.apiAddressToUse = 'generativelanguage.googleapis.com';
+window.apiAddressToUse = 'generativelanguage';
