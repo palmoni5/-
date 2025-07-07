@@ -1098,9 +1098,19 @@ class GeminiClone {
             } else {
                 this.showApiStatus('API Key לא תקף', 'error');
             }
-        } catch (error) {
-            this.showApiStatus('שגיאה בבדיקת API Key', 'error');
-            this.showToast('שגיאה בבדיקת API Key', 'error');
+         } catch (error) {
+            try {
+                const fallbackResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models?key=${this.apiKey}`);
+                if (fallbackResponse.ok) {
+                    this.showApiStatus('API Key תקף ומחובר', 'success');
+                } else {
+                    this.showApiStatus('API Key לא תקף', 'error');
+                    this.showToast('API Key לא תקף', 'error');
+                }
+            } catch (fallbackError) {
+                this.showApiStatus('שגיאה בבדיקת API Key', 'error');
+                this.showToast('שגיאה בבדיקת API Key', 'error');
+            }
         }
     }
 
