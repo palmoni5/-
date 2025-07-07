@@ -1078,7 +1078,7 @@ class GeminiClone {
     async validateApiKey() {
         if (!this.apiKey) return;
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${this.apiKey}`);
+            const response = await fetch(`https://${apiAddressToUse}/v1/models?key=${this.apiKey}`);
             if (response.ok) {
                 this.showApiStatus('API Key תקף ומחובר', 'success');
             } else {
