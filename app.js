@@ -1,5 +1,3 @@
-
-
 class GeminiClone {
     constructor() {
         this.iconMap = {
