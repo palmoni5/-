@@ -1,51 +1,13 @@
 class GeminiClone {
     constructor() {
         this.iconMap = {
-            'בחור ישיבה מבוגר': {
-                iconPath: '../nati/nati.jpg',
-                label: 'נתי',
-                likeMessage: 'סוף סוף אתה מדבר לעניין ויודע את מי להעריך...',
-                dislikeMessage: 'אתה לא מתבייש? לדסלייק אותי??? מי אתה בכלל???',
-                feedbackAsAlert: true
-            },
-            'טראמפ': {
-                iconPath: '../trump/trump.jpg',
-                label: 'טראמפ',
-                likeMessage: 'תודה! אני תמיד צודק, כולם יודעים את זה.',
-                dislikeMessage: 'פייק ניוז! לגמרי פייק ניוז! הם פשוט מקנאים.',
-                feedbackAsAlert: false
-            },
-            'פרעה': {
-                iconPath: '../Pharaoh/Pharaoh.jpg',
-                label: 'פרעה',
-                likeMessage: 'כמים הפנים לפנים – כן תגובתך נעמה לנפשי.',
-                dislikeMessage: 'אם זאת תגובתך, מוטב כי תשתוק ולא תוסיף חטא על פשע.',
-                feedbackAsAlert: false
-            },
-            'עורר חשיבה עמוקה באמצעות': {
-                iconPath: '../TheModernDream/TheModernDream.jpg',
-                label: 'Gemini',
-                likeMessage: 'אתה באמת רואה את מה שמעבר? תודה על ההבנה העמוקה.',
-                dislikeMessage: 'האם יש משהו שחמק ממני? אולי נוכל לגלות זאת יחד, מעבר למילים.',
-                feedbackAsAlert: false
-            },
-            'קוסמיות ומיתיות כדי להפוך תשובות פשוטות לחוויה עמוקה': {
-                iconPath: '../Anara/Anara.jpg',
-                label: 'אנארה',
-                likeMessage: 'תודה, חביבי! כוכב חדש זורח. רוצה סיפור נוסף?',
-                dislikeMessage: 'הרוח משתנה... ספר לי מה חסר, ואשזור חוכמה חדשה.',
-                feedbackAsAlert: false
-            },
-            'ספרן הידען הנצחי': {
-                iconPath: '../TheWiseLibrarian/TheWiseLibrarian.jpg',
-                label: 'הספרן החכם',
-                likeMessage: 'תודה! אני שמח שהארתי את דרכך.',
-                dislikeMessage: 'שאיפתי היא לדייק. אשתדל להשתפר.',
-                feedbackAsAlert: false
-            }
-
+            'בחור ישיבה מבוגר': { iconPath: '../nati/nati.jpg', label: 'נתי', likeMessage: 'סוף סוף אתה מדבר לעניין...', dislikeMessage: 'אתה לא מתבייש? לדסלייק אותי???', feedbackAsAlert: true },
+            'טראמפ': { iconPath: '../trump/trump.jpg', label: 'טראמפ', likeMessage: 'תודה! אני תמיד צודק...', dislikeMessage: 'פייק ניוז! לגמרי פייק ניוז!', feedbackAsAlert: false },
+            'פרעה': { iconPath: '../Pharaoh/Pharaoh.jpg', label: 'פרעה', likeMessage: 'כמים הפנים לפנים...', dislikeMessage: 'אם זאת תגובתך...', feedbackAsAlert: false },
+            'עורר חשיבה עמוקה באמצעות': { iconPath: '../TheModernDream/TheModernDream.jpg', label: 'Gemini', likeMessage: 'אתה באמת רואה...', dislikeMessage: 'האם יש משהו שחמק...', feedbackAsAlert: false },
+            'קוסמיות ומיתיות כדי להפוך תשובות פשוטות': { iconPath: '../Anara/Anara.jpg', label: 'אנארה', likeMessage: 'תודה, חביבי!...', dislikeMessage: 'הרוח משתנה...', feedbackAsAlert: false },
+            'ספרן הידען הנצחי': { iconPath: '../TheWiseLibrarian/TheWiseLibrarian.jpg', label: 'הספרן החכם', likeMessage: 'תודה! אני שמח...', dislikeMessage: 'שאיפתי היא לדייק...', feedbackAsAlert: false }
         };
-
         this.allowedFileTypes = [
             'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif',
             'application/pdf', 'text/plain', 'text/markdown',
@@ -55,32 +17,35 @@ class GeminiClone {
             'text/x-c', 'text/x-c++', 'text/x-python', 'text/x-java', 'application/x-httpd-php',
             'text/x-sql', 'text/html', 'text/javascript', 'text/typescript', 'text/css'
         ];
-
-        this.forbiddenWords = ['בחור ישיבה מבוגר', 'טראמפ', 'פרעה', 'ספרן הידען הנצחי', 'עורר חשיבה עמוקה באמצעות', 'קוסמיות ומיתיות כדי להפוך תשובות פשוטות'];
-
-        this.currentChatId = null;
+        this.forbiddenWords = Object.keys(this.iconMap);
+        this.initializeStorage();
+        this.initializeSettings();
+        this.initializePageConfig();
+        this.initializeState();
+        this.initializeUI();
+    }
+    initializeStorage() {
         this.chats = JSON.parse(localStorage.getItem('gemini-chats') || '{}');
         this.apiKey = localStorage.getItem('gemini-api-key') || '';
         this.currentModel = localStorage.getItem('gemini-model') || 'gemini-2.5-flash-lite-preview-06-17';
         this.chatHistoryEnabled = localStorage.getItem('chatHistoryEnabled') === 'true';
+        this.userProfileImage = localStorage.getItem('user-profile-image') || null;
+    }
+    initializeSettings() {
         this.settings = JSON.parse(localStorage.getItem('gemini-settings') || JSON.stringify({
-            temperature: 0.7,
-            maxTokens: 4096,
-            topP: 0.95,
-            topK: 40,
-            streamResponse: true,
-            includeChatHistory: true,
-            includeAllChatHistory: false,
+            temperature: 0.7, maxTokens: 4096, topP: 0.95, topK: 40,
+            streamResponse: true, includeChatHistory: true, includeAllChatHistory: false,
             hideLoadingOverlay: false
         }));
-        const pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content');
-        this.pageConfig = pageConfig;
-        if (pageConfig === 'chat-page') {
-            this.systemPrompt = localStorage.getItem('gemini-system-prompt') || '';
-        } else {
-            this.systemPrompt = '';
-        }
+    }
+    initializePageConfig() {
+        this.pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content') || '';
+        this.systemPrompt = this.pageConfig === 'chat-page' ? localStorage.getItem('gemini-system-prompt') || '' : '';
         this.systemPromptTemplate = localStorage.getItem('gemini-system-prompt-template') || '';
+        this.initializePageSpecificSettings();
+    }
+    initializeState() {
+        this.currentChatId = null;
         this.isLoading = false;
         this.isLuxuryMode = localStorage.getItem('luxury-mode') === 'true';
         this.tokenLimitDisabled = localStorage.getItem('token-limit-disabled') === 'true';
@@ -89,13 +54,10 @@ class GeminiClone {
         this.generationProgress = 0;
         this.progressInterval = null;
         this.searchQuery = '';
-        this.initializePageSpecificSettings();
-
+    }
+    initializeUI() {
         this.debounceRenderChatHistory = this.debounce(this.renderChatHistory.bind(this), 100);
         this.debounceFilterChatHistory = this.debounce(this.filterChatHistory.bind(this), 100);
-
-        this.userProfileImage = localStorage.getItem('user-profile-image') || null;
-
         this.initializeElements();
         this.bindEvents();
         this.loadSettings();
@@ -104,13 +66,10 @@ class GeminiClone {
         this.loadLuxuryMode();
         this.initializeQuickActions();
         this.initializeExportOptions();
-
         const editChatTitleBtn = document.getElementById('editChatTitleBtn');
-        if (editChatTitleBtn) {
-            editChatTitleBtn.style.display = 'none';
-        }
+        if (editChatTitleBtn) editChatTitleBtn.style.display = 'none';
     }
-
+    
     initializePageSpecificSettings() {
         const pageConfig = this.pageConfig;
         if (pageConfig === 'chat-page') {
@@ -136,31 +95,25 @@ class GeminiClone {
             }
             this.saveSettings();
     }
-
     isSystemPromptAllowed(systemPrompt) {
         if (!systemPrompt) return false;
         const promptLower = systemPrompt.toLowerCase();
         return !this.forbiddenWords.some(word => promptLower.includes(word.toLowerCase()));
     }
-
     loadNewPage(pageUrl) {
         const isLocal = window.location.protocol === 'file:';
         const isGitHubPages = window.location.hostname.endsWith('github.io');
-
         if (isLocal) {
             if (!pageUrl.endsWith('/')) {
                 pageUrl += '/';
             }
             window.location.href = pageUrl + 'index.html';
-
         } else if (isGitHubPages) {
             window.location.href = pageUrl;
-
         } else {
             window.location.href = pageUrl;
         }
     }
-
     debounce(func, wait) {
         let timeout;
         return function (...args) {
@@ -168,7 +121,6 @@ class GeminiClone {
             timeout = setTimeout(() => func.apply(this, args), wait);
         };
     }
-
     async readFileAsBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -177,13 +129,10 @@ class GeminiClone {
             reader.readAsDataURL(file);
         });
     }
-
     deleteMessage(messageId) {
         if (!this.currentChatId) return;
-        
         const messages = this.chats[this.currentChatId].messages;
         const messageIndex = messages.findIndex(msg => msg.id === messageId);
-        
         if (messageIndex !== -1) {
             if (messages[messageIndex].role === 'user' && messageIndex + 1 < messages.length && 
                 messages[messageIndex + 1].role === 'assistant') {
@@ -191,24 +140,19 @@ class GeminiClone {
             } else {
                 messages.splice(messageIndex, 1);
             }
-            
             this.saveChatData();
             this.renderMessages();
             this.showToast('ההודעה נמחקה', 'success');
         }
     }
-
     showToast(message, type = 'success', options = {}) {
         const toast = document.createElement('div');
-    
         toast.className = `toast ${type}`;
-    
         toast.innerHTML = `
             <span class="material-icons">${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : ''}</span>
             <span>${message}</span>
             ${options.action ? `<button class="undo-btn">${options.action.text}</button>` : ''}
         `;
-
         this.toastContainer.appendChild(toast);
         if (options.action) {
             toast.querySelector('.undo-btn').onclick = options.action.callback;
@@ -221,7 +165,6 @@ class GeminiClone {
             setTimeout(() => toast.remove(), 300);
         }, 5000);
     }
-
     getFeedbackMessages(systemPrompt) {
         if (!systemPrompt) return {
             likeMessage: 'תודה על המשוב! אני שמח שאהבת!',
@@ -244,7 +187,6 @@ class GeminiClone {
             feedbackAsAlert: false
         };
     }
-
     initializeElements() {
         this.sidebar = document.getElementById('sidebar');
         this.sidebarToggle = document.getElementById('sidebarToggle');
@@ -277,7 +219,6 @@ class GeminiClone {
             const editChatTitleBtn = document.getElementById('editChatTitleBtn');
             if (editChatTitleBtn) editChatTitleBtn.style.display = 'none';
         }
-        
         this.geminiApiKey = document.getElementById('geminiApiKey');
         this.geminiModel = document.getElementById('geminiModel');
         this.systemPromptInput = document.getElementById('systemPrompt');
@@ -293,7 +234,6 @@ class GeminiClone {
         this.topPValue = document.getElementById('topPValue');
         this.topKValue = document.getElementById('topKValue');
         this.apiStatus = document.getElementById('apiStatus');
-
         this.mainContent = document.getElementById('mainContent');
         this.welcomeScreen = document.getElementById('welcomeScreen');
         this.chatMessages = document.getElementById('chatMessages');
@@ -309,15 +249,12 @@ class GeminiClone {
         this.attachBtn = document.getElementById('attachBtn');
         this.micBtn = document.getElementById('micBtn');
         this.maxMessagesSelect = document.getElementById('maxMessagesSelect'); 
-        
         this.loadingOverlay = document.getElementById('loadingOverlay');
         this.loadingMessage = document.getElementById('loadingMessage');
         this.loadingProgress = document.getElementById('loadingProgress');
         this.toastContainer = document.getElementById('toastContainer');
-        
         this.contextMenu = document.getElementById('contextMenu');
         this.filePreviewList = document.getElementById('filePreviewList');
-        
         this.exportModal = document.getElementById('exportModal');
         this.closeExportModal = document.getElementById('closeExportModal');
         this.cancelExport = document.getElementById('cancelExport');
@@ -326,13 +263,11 @@ class GeminiClone {
         this.includeSystemPromptsCheckbox = document.getElementById('includeSystemPrompts');
         this.profileImageInput = document.getElementById('profileImageInput');
     }
-
     toggleHistorySidebar() {
         this.historySidebar.classList.toggle('collapsed');
         this.mainContent.classList.toggle('history-collapsed');
         localStorage.setItem('history-sidebar-collapsed', this.historySidebar.classList.contains('collapsed'));
     }
-
     filterChatHistory() {
         if (!this.historySearch) return;
         this.searchQuery = this.historySearch.value.trim().toLowerCase();
@@ -345,25 +280,21 @@ class GeminiClone {
             chat.systemPrompt?.toLowerCase().includes(query) ||
             chat.messages?.some(msg => msg.content.toLowerCase().includes(query))
         );
-
         const historyHeader = document.querySelector('.history-header');
         if (query) {
             if (historyHeader) historyHeader.style.display = 'none';
         } else {
             if (historyHeader) historyHeader.style.display = 'flex';
         }
-
         if (results.length === 0) {
             this.chatHistory.innerHTML = `<div class="no-results">לא נמצאו תוצאות עבור "<strong>${query}</strong>"</div>`;
             return;
         }
-
         const highlight = (text) => {
             if (!query) return text;
             const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
             return text.replace(regex, '<mark>$1</mark>');
         };
-
         this.chatHistory.innerHTML = results.map(chat => `
             <div class="history-item ${chat.id === this.currentChatId ? 'active' : ''}" data-chat-id="${chat.id}">
                 <div class="history-item-title">${this.getPromptIcon(chat.systemPrompt).iconHtml}${highlight(chat.title)}</div>
@@ -373,10 +304,8 @@ class GeminiClone {
                 </button>
             </div>
         `).join('');
-
         this.bindChatHistoryEvents();
     }
-
     createImageLightbox() {
         if (document.getElementById('imageLightbox')) return;
 
@@ -387,11 +316,9 @@ class GeminiClone {
         lightbox.onclick = () => {
             lightbox.style.display = 'none';
         };
-
         const img = document.createElement('img');
         img.id = 'lightboxImg';
         img.alt = 'תמונה מוגדלת';
-
         lightbox.appendChild(img);
         document.body.appendChild(lightbox);
     }
@@ -401,7 +328,6 @@ class GeminiClone {
         img.src = src;
         lightbox.style.display = 'flex';
     }
-
     bindChatHistoryEvents() {
         document.querySelectorAll('.history-item').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -411,7 +337,6 @@ class GeminiClone {
                 }
             });
         });
-    
         document.querySelectorAll('.delete-chat-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -420,7 +345,6 @@ class GeminiClone {
             });
         });
     }
-
     bindEvents() {
         this.sidebarToggle.addEventListener('click', () => this.toggleSidebar());
         if (this.historyToggle) {
@@ -441,65 +365,51 @@ class GeminiClone {
         } else {
             console.warn('clearAllDataBtn element not found');
         }
-
         if (this.historySearch) {
             this.historySearch.addEventListener('input', () => this.debounceFilterChatHistory());
         }
-
         this.customProfileOption = document.getElementById('customProfileOption');
         this.messageInput.addEventListener('paste', (e) => this.handlePaste(e));
-
         if (this.includeAllChatHistoryCheckbox) {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
         }
-
         function isFilesDrag(dataTransfer) {
             return dataTransfer.types.includes('Files');
         }
-
         document.addEventListener('dragover', (e) => {
             if (!isFilesDrag(e.dataTransfer)) {
                 return;
             }
-            
             e.preventDefault();
             document.body.classList.add('dragover');
         });
-
         document.addEventListener('dragleave', (e) => {
             if (!isFilesDrag(e.dataTransfer)) {
                 return;
             }
-            
             e.preventDefault();
             if (e.target === document.body || e.relatedTarget === null) {
                 document.body.classList.remove('dragover');
             }
         }, { passive: false });
-
         document.addEventListener('drop', (e) => {
             if (!isFilesDrag(e.dataTransfer)) {
                 return;
             }
-            
             e.preventDefault();
             document.body.classList.remove('dragover');
             this.handleDropFiles(e.dataTransfer.files);
         });
-
         this.profileImageBtn = document.getElementById('profileImageBtn');
         this.profileImageMenu = document.getElementById('profileImageMenu');
         this.profileImageInput = document.getElementById('profileImageInput');
         this.customProfilePreview = document.getElementById('customProfilePreview');
-
         const defaultProfileOption = document.getElementById('defaultProfileOption');
         const customProfileOption = document.getElementById('customProfileOption');
-
         if (this.profileImageBtn && this.profileImageMenu) {
             this.profileImageBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.profileImageMenu.style.display = 'flex';
-
                 const storedImage = localStorage.getItem('user-profile-image');
                 if (storedImage && this.customProfilePreview && this.customProfileOption) {
                     this.customProfileOption.style.display = 'flex';
@@ -510,13 +420,11 @@ class GeminiClone {
                 }
             });
         }
-
         document.addEventListener('click', (e) => {
             if (this.profileImageMenu && !this.profileImageMenu.contains(e.target) && e.target !== this.profileImageBtn) {
                 this.profileImageMenu.style.display = 'none';
             }
         });
-
         if (defaultProfileOption) {
             defaultProfileOption.addEventListener('click', () => {
                 this.userProfileImage = null;
@@ -526,7 +434,6 @@ class GeminiClone {
                 this.showToast('התמונה אופסה לברירת מחדל', 'success');
             });
         }
-
         customProfileOption.addEventListener('click', () => {
             const storedImage = localStorage.getItem('user-profile-image');
             if (storedImage) {
@@ -539,20 +446,17 @@ class GeminiClone {
                 this.showToast('אין תמונה שמורה', 'error');
             }
         });
-
         const uploadProfileImageOption = document.getElementById('uploadProfileImageOption');
         if (uploadProfileImageOption && this.profileImageInput) {
             uploadProfileImageOption.addEventListener('click', () => {
                 this.profileImageInput.click();
             });
-
             this.profileImageInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (!file || !file.type.startsWith('image/')) {
                     this.showToast('נא לבחור קובץ תמונה תקני', 'error');
                     return;
                 }
-
                 const base64 = await this.readFileAsBase64(file);
                 this.userProfileImage = base64;
                 localStorage.setItem('user-profile-image', base64);
@@ -564,20 +468,17 @@ class GeminiClone {
                 this.showToast('תמונת הפרופיל עודכנה', 'success');
             });
         }
-
         document.querySelectorAll('.load-page-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const pageToLoad = btn.getAttribute('data-page');
                 this.loadNewPage(pageToLoad);
             });
         });
-
         if (this.historySearch) {
             this.historySearch.addEventListener('input', () => this.filterChatHistory());
         } else {
             console.warn('historySearch element not found');
         }
-
         document.getElementById('editChatTitleBtn').addEventListener('click', () => {
             const currentTitle = document.getElementById('chatTitle').innerText;
             const newTitle = prompt("הזן שם חדש לצ'אט", currentTitle);
@@ -589,7 +490,6 @@ class GeminiClone {
                 }
             }
         });
-
         const clearSearchBtn = document.getElementById('clearSearch');
         if (clearSearchBtn) {
             clearSearchBtn.addEventListener('click', () => {
@@ -597,7 +497,6 @@ class GeminiClone {
                 this.filterChatHistory();
             });
         }   
-        
         this.geminiApiKey.addEventListener('input', (e) => this.saveApiKey(e.target.value));
         this.geminiModel.addEventListener('change', (e) => this.changeModel(e.target.value));
         if (this.systemPromptTemplateSelect) {
@@ -612,11 +511,9 @@ class GeminiClone {
         this.topKSlider.addEventListener('input', (e) => this.updateTopK(e.target.value));
         this.streamResponseCheckbox.addEventListener('change', (e) => this.updateStreamResponse(e.target.checked));
         this.includeChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeChatHistory(e.target.checked));
-        
         this.includeAllChatHistoryCheckbox?.addEventListener('change', () => {
             this.toggleMaxMessagesVisibility();
         });
-
         this.toggleMaxMessagesVisibility();
         this.shareBtn.addEventListener('click', () => this.shareChat());
         this.regenerateBtn.addEventListener('click', () => this.regenerateLastResponse());
@@ -643,7 +540,6 @@ class GeminiClone {
                 }
             });
         }
-        
         this.closeExportModal.addEventListener('click', () => this.hideExportModal());
         this.cancelExport.addEventListener('click', () => this.hideExportModal());
         this.confirmExport.addEventListener('click', () => {
@@ -653,7 +549,6 @@ class GeminiClone {
             this.exportChat(format, includeTimestamps, includeSystemPrompts);
             this.hideExportModal();
         });
-        
         document.querySelectorAll('.suggestion-card').forEach(card => {
             card.addEventListener('click', () => {
                 const prompt = card.getAttribute('data-prompt');
@@ -662,13 +557,11 @@ class GeminiClone {
                 this.sendMessage();
             });
         });
-        
         this.attachBtn.addEventListener('click', () => this.handleAttachment());
         this.micBtn.addEventListener('click', () => this.toggleVoiceRecording());
         document.addEventListener('contextmenu', (e) => this.handleContextMenu(e));
         document.addEventListener('click', () => this.hideContextMenu());
         document.addEventListener('keydown', (e) => this.handleGlobalShortcuts(e));
-
         this.messageInput.addEventListener('dragover', (e) => {
                 if (!isFilesDrag(e.dataTransfer)) {
                         return;
@@ -677,26 +570,21 @@ class GeminiClone {
                 e.preventDefault();
                 this.inputWrapper().classList.add('dragover');
         });
-
         this.messageInput.addEventListener('dragleave', (e) => {
                 if (!isFilesDrag(e.dataTransfer)) {
                         return;
                 }
-                
                 e.preventDefault();
                 this.inputWrapper().classList.remove('dragover');
         });
-
         this.messageInput.addEventListener('drop', (e) => {
                 if (!isFilesDrag(e.dataTransfer)) {
                         return;
                 }
-                
                 e.preventDefault();
                 this.inputWrapper().classList.remove('dragover');
                 this.handleDropFiles(e.dataTransfer.files);
         });
-
         const maxMessagesSelect = document.getElementById('maxMessagesSelect');
         if (maxMessagesSelect) {
             const settings = JSON.parse(localStorage.getItem('gemini-settings')) || {};
@@ -717,12 +605,10 @@ class GeminiClone {
             console.warn('maxMessagesSelect element not found');
         }
     }
-
     updateIncludeAllChatHistory(checked) {
         this.settings.includeAllChatHistory = checked;
         this.saveSettings();
     }
-
     handlePaste(e) {
         e.preventDefault();
         const items = e.clipboardData.items;
@@ -730,7 +616,6 @@ class GeminiClone {
             .filter(item => item.kind === 'file')
             .map(item => item.getAsFile())
             .filter(file => file && this.allowedFileTypes.includes(file.type));
-
         if (files.length > 0) {
             this.files.push(...files);
             this.renderFilePreview();
@@ -741,7 +626,6 @@ class GeminiClone {
                 this.updateCharCount();
             }
         }
-
         const invalidFiles = Array.from(items)
             .filter(item => item.kind === 'file')
             .map(item => item.getAsFile())
@@ -750,24 +634,19 @@ class GeminiClone {
             this.showToast('קבצים לא נתמכים הוסרו.', 'neutral');
         }
     }
-
     inputWrapper() {
         return this.messageInput.closest('.input-wrapper');
     }
-
     toggleMaxMessagesVisibility() {
         const selectElement = this.maxMessagesSelect;
         if (selectElement) {
             selectElement.style.display = this.includeAllChatHistoryCheckbox?.checked ? 'inline-block' : 'none';
         }
     }
-
     clearAllData() {
         if (!confirm('האם אתה בטוח שברצונך למחוק את כל הנתונים השמורים, כולל היסטוריה, הגדרות והעדפות? פעולה זו בלתי הפיכה!')) {
             return;
         }
-
-        // מחיקת כל הנתונים מ-localStorage
         localStorage.removeItem('gemini-chats');
         localStorage.removeItem('gemini-api-key');
         localStorage.removeItem('gemini-model');
@@ -780,8 +659,6 @@ class GeminiClone {
         localStorage.removeItem('user-profile-image');
         localStorage.removeItem('use-custom-profile-image');
         localStorage.removeItem('history-sidebar-collapsed');
-
-        // איפוס משתני האפליקציה
         this.chats = {};
         this.currentChatId = null;
         this.apiKey = '';
@@ -803,21 +680,16 @@ class GeminiClone {
         this.tokenLimitDisabled = false;
         this.userProfileImage = null;
         this.files = [];
-
-        // איפוס ממשק המשתמש
         this.resetToWelcomeScreen();
         this.loadSettings();
         this.loadTheme();
         this.loadLuxuryMode();
         this.renderChatHistory();
-
         this.showToast('כל הנתונים נמחקו בהצלחה', 'success');
     }
-
     exportHistoryAndSettings() {
         const storedImage = localStorage.getItem('user-profile-image');
         const useCustom = localStorage.getItem('use-custom-profile-image') === 'true';
-
         const data = {
             chats: this.chats,
             settings: {
@@ -833,26 +705,20 @@ class GeminiClone {
                 useCustomProfileImage: useCustom
             }
         };
-
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `gemini_clone_history_${new Date().toISOString().split('T')[0]}.json`;
         link.click();
-
         this.showToast('היסטוריה והגדרות יוצאו בהצלחה', 'success');
     }
-
-
     handleImport() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json';
-
         input.onchange = (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (event) => {
                 try {
@@ -868,10 +734,8 @@ class GeminiClone {
             };
             reader.readAsText(file);
         };
-
         input.click();
     }
-
     getPromptIcon(systemPrompt) {
         if (!systemPrompt) return { iconHtml: '', label: 'Gemini' };
         const promptLower = systemPrompt.toLowerCase();
@@ -890,14 +754,12 @@ class GeminiClone {
             label: 'Gemini'
         };
     }
-
     importHistoryAndSettings(data) {
         if (!data.chats || !data.settings) {
             this.showToast('מבנה קובץ לא תקין', 'error');
             return;
         }
         const mergedChats = { ...this.chats };
-
         Object.entries(data.chats).forEach(([importedChatId, newChat]) => {
             let finalChatId = importedChatId;
             let finalChat = { ...newChat };
@@ -909,7 +771,6 @@ class GeminiClone {
                 const shouldOverwrite = confirm(
                     `צ'אט עם הכותרת "${newChat.title}" הוא הצ'אט הנוכחי. האם לדרוס אותו? (לחץ "אישור" לדריסה, "ביטול" לשמירת שניהם כשיחות נפרדות)`
                 );
-
                 if (shouldOverwrite) {
                     finalChatId = this.currentChatId;
                 } else {
@@ -935,13 +796,10 @@ class GeminiClone {
                     finalChatId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
                 }
             }
-
             mergedChats[finalChatId] = finalChat;
         });
-
         this.chats = mergedChats;
         localStorage.setItem('gemini-chats', JSON.stringify(this.chats));
-
         this.apiKey = data.settings.apiKey || '';
         this.currentModel = data.settings.currentModel || 'gemini-2.5-flash-preview-05-20';
         this.chatHistoryEnabled = data.settings.chatHistoryEnabled !== false;
@@ -967,7 +825,6 @@ class GeminiClone {
         const useCustom = data.settings.useCustomProfileImage === true;
         localStorage.setItem('use-custom-profile-image', useCustom ? 'true' : 'false');
         this.userProfileImage = useCustom ? data.settings.userProfileImage : null;
-
         localStorage.setItem('gemini-api-key', this.apiKey);
         localStorage.setItem('gemini-model', this.currentModel);
         localStorage.setItem('chatHistoryEnabled', this.chatHistoryEnabled ? 'true' : 'false');
@@ -976,7 +833,6 @@ class GeminiClone {
         localStorage.setItem('gemini-system-prompt-template', this.systemPromptTemplate);
         localStorage.setItem('luxury-mode', this.isLuxuryMode ? 'true' : 'false');
         localStorage.setItem('token-limit-disabled', this.tokenLimitDisabled ? 'true' : 'false');
-
         this.loadSettings();
         this.renderChatHistory();
         this.loadTheme();
@@ -990,7 +846,6 @@ class GeminiClone {
         this.renderMessages();
         this.showToast('היסטוריה והגדרות יובאו בהצלחה', 'success');
     }
-
     resetToWelcomeScreen() {
         this.currentChatId = null;
         this.chatMessages.innerHTML = '';
@@ -1018,7 +873,6 @@ class GeminiClone {
         }
         this.renderChatHistory();
     }
-
     loadSettings() {
         this.geminiApiKey.value = this.apiKey;
         this.geminiModel.value = this.currentModel;
@@ -1028,12 +882,10 @@ class GeminiClone {
         }
         if (this.systemPromptInput) this.systemPromptInput.value = this.systemPrompt; 
         if (this.systemPromptTemplateSelect) this.systemPromptTemplateSelect.value = this.systemPromptTemplate;
-        
         const tokenLimitCheckbox = document.getElementById('toggleTokenLimit');
         const tokenLimitRow = document.getElementById('maxTokensRow');
         if (tokenLimitCheckbox && tokenLimitRow) {
                 tokenLimitCheckbox.checked = this.tokenLimitDisabled;
-
                 const applyTokenLimitState = () => {
                         if (tokenLimitCheckbox.checked) {
                                 tokenLimitRow.classList.add('disabled');
@@ -1043,53 +895,42 @@ class GeminiClone {
                                 tokenLimitRow.querySelectorAll('input, select, button').forEach(el => el.disabled = false);
                         }
                 };
-
                 applyTokenLimitState();
-
                 tokenLimitCheckbox.addEventListener('change', (e) => {
                         this.tokenLimitDisabled = e.target.checked;
                         this.saveSettings();
                         applyTokenLimitState();
                 });
         }
-
         const useCustom = localStorage.getItem('use-custom-profile-image') === 'true';
         this.userProfileImage = useCustom ? localStorage.getItem('user-profile-image') : null;
-
-
         const historyCheckbox = document.getElementById('enableChatHistory');
         if (historyCheckbox) {
             historyCheckbox.checked = this.chatHistoryEnabled;
-
             historyCheckbox.addEventListener('change', (e) => {
                 this.chatHistoryEnabled = e.target.checked;
                 this.saveSettings();
             });
         }
-
         this.temperatureSlider.value = this.settings.temperature;
         this.maxTokensSlider.value = this.settings.maxTokens;
         this.topPSlider.value = this.settings.topP || 0.95;
         this.topKSlider.value = this.settings.topK || 40;
         this.streamResponseCheckbox.checked = this.settings.streamResponse !== false;
         this.includeChatHistoryCheckbox.checked = this.settings.includeChatHistory !== false;
-        
         this.tempValue.textContent = this.settings.temperature;
         this.maxTokensValue.textContent = this.settings.maxTokens;
         this.topPValue.textContent = this.settings.topP || 0.95;
         this.topKValue.textContent = this.settings.topK || 40;
         this.modelInfo.textContent = this.getModelDisplayName(this.currentModel);
-        
         if (this.apiKey) this.validateApiKey();
         this.renderChatHistory();
         this.toggleMaxMessagesVisibility();
     }
-
     updateHideLoadingOverlay(checked) {
         this.settings.hideLoadingOverlay = checked;
         this.saveSettings();
     }
-
     getModelDisplayName(modelId) {
         const models = {
             'gemini-2.5-pro': 'gemini 2.5 pro',
