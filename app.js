@@ -453,22 +453,31 @@ class GeminiClone {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
         }
 
-        document.addEventListener('dragover', (e) => {
+        this.messageInput.addEventListener('dragover', (e) => {
             e.preventDefault();
-            document.body.classList.add('dragover');
+            const hasFiles = Array.from(e.dataTransfer.items).some(item => item.kind === 'file' && this.allowedFileTypes.includes(item.type));
+            if (hasFiles) {
+                this.inputWrapper().classList.add('dragover');
+            }
         });
 
-        document.addEventListener('dragleave', (e) => {
+        this.messageInput.addEventListener('dragleave', (e) => {
             e.preventDefault();
-            if (e.target === document.body || e.relatedTarget === null) {
-                document.body.classList.remove('dragover');
-            }
-        }, { passive: false });
+            this.inputWrapper().classList.remove('dragover');
+        });
 
-        document.addEventListener('drop', (e) => {
+        this.messageInput.addEventListener('drop', (e) => {
             e.preventDefault();
-            document.body.classList.remove('dragover');
-            this.handleDropFiles(e.dataTransfer.files);
+            this.inputWrapper().classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(file => this.allowedFileTypes.includes(file.type));
+            const text = e.dataTransfer.getData('text/plain');
+    
+            if (files.length > 0) {
+                this.handleDropFiles(files);
+            } else if (text) {
+                this.messageInput.value += text;
+                this.updateCharCount();
+            }
         });
 
         this.profileImageBtn = document.getElementById('profileImageBtn');
