@@ -453,31 +453,38 @@ class GeminiClone {
             this.includeAllChatHistoryCheckbox.addEventListener('change', (e) => this.updateIncludeAllChatHistory(e.target.checked));
         }
 
-        this.messageInput.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const hasFiles = Array.from(e.dataTransfer.items).some(item => item.kind === 'file' && this.allowedFileTypes.includes(item.type));
-            if (hasFiles) {
-                this.inputWrapper().classList.add('dragover');
+        function isFilesDrag(dataTransfer) {
+            return dataTransfer.types.includes('Files');
+        }
+
+        document.addEventListener('dragover', (e) => {
+            if (!isFilesDrag(e.dataTransfer)) {
+                return;
             }
+            
+            e.preventDefault();
+            document.body.classList.add('dragover');
         });
 
-        this.messageInput.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            this.inputWrapper().classList.remove('dragover');
-        });
-
-        this.messageInput.addEventListener('drop', (e) => {
-            e.preventDefault();
-            this.inputWrapper().classList.remove('dragover');
-            const files = Array.from(e.dataTransfer.files).filter(file => this.allowedFileTypes.includes(file.type));
-            const text = e.dataTransfer.getData('text/plain');
-    
-            if (files.length > 0) {
-                this.handleDropFiles(files);
-            } else if (text) {
-                this.messageInput.value += text;
-                this.updateCharCount();
+        document.addEventListener('dragleave', (e) => {
+            if (!isFilesDrag(e.dataTransfer)) {
+                return;
             }
+            
+            e.preventDefault();
+            if (e.target === document.body || e.relatedTarget === null) {
+                document.body.classList.remove('dragover');
+            }
+        }, { passive: false });
+
+        document.addEventListener('drop', (e) => {
+            if (!isFilesDrag(e.dataTransfer)) {
+                return;
+            }
+            
+            e.preventDefault();
+            document.body.classList.remove('dragover');
+            this.handleDropFiles(e.dataTransfer.files);
         });
 
         this.profileImageBtn = document.getElementById('profileImageBtn');
@@ -661,19 +668,33 @@ class GeminiClone {
         document.addEventListener('contextmenu', (e) => this.handleContextMenu(e));
         document.addEventListener('click', () => this.hideContextMenu());
         document.addEventListener('keydown', (e) => this.handleGlobalShortcuts(e));
-        
+
         this.messageInput.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            this.inputWrapper().classList.add('dragover');
+                if (!isFilesDrag(e.dataTransfer)) {
+                        return;
+                }
+                
+                e.preventDefault();
+                this.inputWrapper().classList.add('dragover');
         });
+
         this.messageInput.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            this.inputWrapper().classList.remove('dragover');
+                if (!isFilesDrag(e.dataTransfer)) {
+                        return;
+                }
+                
+                e.preventDefault();
+                this.inputWrapper().classList.remove('dragover');
         });
+
         this.messageInput.addEventListener('drop', (e) => {
-            e.preventDefault();
-            this.inputWrapper().classList.remove('dragover');
-            this.handleDropFiles(e.dataTransfer.files);
+                if (!isFilesDrag(e.dataTransfer)) {
+                        return;
+                }
+                
+                e.preventDefault();
+                this.inputWrapper().classList.remove('dragover');
+                this.handleDropFiles(e.dataTransfer.files);
         });
 
         const maxMessagesSelect = document.getElementById('maxMessagesSelect');
