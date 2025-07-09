@@ -1729,14 +1729,15 @@ class GeminiClone {
                 ? `<img src="${promptIcon.iconHtml.match(/src="([^"]+)"/)?.[1]}" alt="עוזר" class="assistant-avatar">`
                 : '<span class="material-icons assistant-icon">auto_awesome</span>';
         const senderName = isUser ? 'אתה' : promptIcon.label;
-    
+
         let filesHtml = '';
         if (message.files && message.files.length) {
             const images = message.files.filter(f => f.type.startsWith('image/'));
-            const otherFiles = message.files.filter(f => !f.type.startsWith('image/'));
+            const videos = message.files.filter(f => f.type.startsWith('video/'));
+            const otherFiles = message.files.filter(f => !f.type.startsWith('image/') && !f.type.startsWith('video/'));
 
             filesHtml = '';
-        
+
             if (images.length) {
                 filesHtml += `
                     <div class="file-preview-list images-only">
@@ -1745,8 +1746,24 @@ class GeminiClone {
                                 <img src="data:${f.type};base64,${f.base64}" 
                                      alt="${f.name}" 
                                      class="chat-thumbnail"
-                                     onclick="showLightbox('data:${f.type};base64,${f.base64}')">
+                                     onclick="showLightbox('data:${f.type};base64,${f.base64}', 'image')">
                                 <div class="image-name">${f.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>`;
+            }
+
+            if (videos.length) {
+                filesHtml += `
+                    <div class="file-preview-list videos-only">
+                        ${videos.map(f => `
+                            <div class="video-thumbnail" title="${f.name}">
+                                <video width="100" height="60" controls
+                                       onclick="showLightbox('data:${f.type};base64,${f.base64}', 'video')">
+                                    <source src="data:${f.type};base64,${f.base64}" type="${f.type}">
+                                    הדפדפן שלך לא תומך בהפעלת וידאו.
+                                </video>
+                                <div class="video-name">${f.name}</div>
                             </div>
                         `).join('')}
                     </div>`;
@@ -1758,14 +1775,14 @@ class GeminiClone {
                         ${otherFiles.map(f => `
                             <div class="file-preview">
                                 <span class="material-icons">${this.getFileIcon(f)}</span>
-                                <span title="${f.name}">${f.name.length > 18 ? f.name.slice(0,15)+'...' : f.name}</span>
+                                <span title="${f.name}">${f.name.length > 18 ? f.name.slice(0, 15) + '...' : f.name}</span>
                                 <span>(${this.formatFileSize(f.size)})</span>
                             </div>
                         `).join('')}
                     </div>`;
             }
         }
-        
+
         return `
             <div class="message ${message.role}" data-message-id="${message.id}">
                 <div class="message-header">
@@ -1789,10 +1806,10 @@ class GeminiClone {
                         <button class="action-btn-small retry-btn" title="ענה מחדש">
                             <span class="material-icons">refresh</span>
                         </button>
-                    <div class="likes-dislikes" style="display:inline-flex; gap:6px; align-items:center; margin-right:10px;">
-                        <button class="like-btn" title="אהבתי">👍</button>
-                        <button class="dislike-btn" title="לא אהבתי">👎</button>
-                    </div>
+                        <div class="likes-dislikes" style="display:inline-flex; gap:6px; align-items:center; margin-right:10px;">
+                            <button class="like-btn" title="אהבתי">👍</button>
+                            <button class="dislike-btn" title="לא אהבתי">👎</button>
+                        </div>
                     ` : `
                         <button class="action-btn-small edit-btn" title="ערוך">
                             <span class="material-icons">edit</span>
@@ -2810,7 +2827,16 @@ class GeminiClone {
     }
 
     saveChatData() {
-        localStorage.setItem('gemini-chats', JSON.stringify(this.chats));
+        try {
+            localStorage.setItem('gemini-chats', JSON.stringify(this.chats));
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                this.showToast('השיחה חורגת ממגבלות האיחסון והיא לא תישמר, נסה למחוק שיחות ישנות או הודעות עם קבצים.', 'error');
+                console.error('Quota exceeded in localStorage:', e);
+            } else {
+                throw e;
+            }
+        }
     }
 
     regenerateLastResponse() {
