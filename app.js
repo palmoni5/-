@@ -17,35 +17,31 @@ class GeminiClone {
             'text/x-c', 'text/x-c++', 'text/x-python', 'text/x-java', 'application/x-httpd-php',
             'text/x-sql', 'text/html', 'text/javascript', 'text/typescript', 'text/css'
         ];
-        this.forbiddenWords = Object.keys(this.iconMap);
-        this.initializeStorage();
-        this.initializeSettings();
-        this.initializePageConfig();
-        this.initializeState();
-        this.initializeUI();
-    }
-    initializeStorage() {
+        this.forbiddenWords = ['בחור ישיבה מבוגר', 'טראמפ', 'פרעה', 'ספרן הידען הנצחי', 'עורר חשיבה עמוקה באמצעות', 'קוסמיות ומיתיות כדי להפוך תשובות פשוטות'];
+
+        this.currentChatId = null;
         this.chats = JSON.parse(localStorage.getItem('gemini-chats') || '{}');
         this.apiKey = localStorage.getItem('gemini-api-key') || '';
         this.currentModel = localStorage.getItem('gemini-model') || 'gemini-2.5-flash-lite-preview-06-17';
         this.chatHistoryEnabled = localStorage.getItem('chatHistoryEnabled') === 'true';
-        this.userProfileImage = localStorage.getItem('user-profile-image') || null;
-    }
-    initializeSettings() {
         this.settings = JSON.parse(localStorage.getItem('gemini-settings') || JSON.stringify({
-            temperature: 0.7, maxTokens: 4096, topP: 0.95, topK: 40,
-            streamResponse: true, includeChatHistory: true, includeAllChatHistory: false,
+            temperature: 0.7,
+            maxTokens: 4096,
+            topP: 0.95,
+            topK: 40,
+            streamResponse: true,
+            includeChatHistory: true,
+            includeAllChatHistory: false,
             hideLoadingOverlay: false
         }));
-    }
-    initializePageConfig() {
-        this.pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content') || '';
-        this.systemPrompt = this.pageConfig === 'chat-page' ? localStorage.getItem('gemini-system-prompt') || '' : '';
+        const pageConfig = document.querySelector('meta[name="page-config"]')?.getAttribute('content');
+        this.pageConfig = pageConfig;
+        if (pageConfig === 'chat-page') {
+            this.systemPrompt = localStorage.getItem('gemini-system-prompt') || '';
+        } else {
+            this.systemPrompt = '';
+        }
         this.systemPromptTemplate = localStorage.getItem('gemini-system-prompt-template') || '';
-        this.initializePageSpecificSettings();
-    }
-    initializeState() {
-        this.currentChatId = null;
         this.isLoading = false;
         this.isLuxuryMode = localStorage.getItem('luxury-mode') === 'true';
         this.tokenLimitDisabled = localStorage.getItem('token-limit-disabled') === 'true';
@@ -54,10 +50,13 @@ class GeminiClone {
         this.generationProgress = 0;
         this.progressInterval = null;
         this.searchQuery = '';
-    }
-    initializeUI() {
+        this.initializePageSpecificSettings();
+
         this.debounceRenderChatHistory = this.debounce(this.renderChatHistory.bind(this), 100);
         this.debounceFilterChatHistory = this.debounce(this.filterChatHistory.bind(this), 100);
+
+        this.userProfileImage = localStorage.getItem('user-profile-image') || null;
+
         this.initializeElements();
         this.bindEvents();
         this.loadSettings();
@@ -66,8 +65,11 @@ class GeminiClone {
         this.loadLuxuryMode();
         this.initializeQuickActions();
         this.initializeExportOptions();
+
         const editChatTitleBtn = document.getElementById('editChatTitleBtn');
-        if (editChatTitleBtn) editChatTitleBtn.style.display = 'none';
+        if (editChatTitleBtn) {
+            editChatTitleBtn.style.display = 'none';
+        }
     }
     
     initializePageSpecificSettings() {
