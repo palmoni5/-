@@ -11,7 +11,7 @@ class GeminiClone {
         this.allowedFileTypes = [
             'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif',
             'application/pdf', 'text/plain', 'text/markdown',
-            'audio/wav', 'audio/mp3', 'audio/aiff', 'audio/aac', 'audio/ogg', 'audio/flac',
+            'audio/wav', 'audio/mp3', 'audio/aiff', 'audio/aac', 'audio/ogg', 'audio/flac', 'audio/mpeg',
             'video/mp4', 'video/mpeg', 'video/mov', 'video/avi', 'video/x-flv', 'video/mpg',
             'video/webm', 'video/wmv', 'video/3gpp',
             'text/x-c', 'text/x-c++', 'text/x-python', 'text/x-java', 'application/x-httpd-php',
@@ -73,7 +73,7 @@ class GeminiClone {
     initializePageSpecificSettings() {
         const pageConfig = this.pageConfig;
         if (pageConfig === 'chat-page') {
-            this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. ההבחנה בין שיחות נפרדות תהיה באמצעות [END_CHAT: כותרת] שנמצאת בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה ('[END_CHAT: ]') בתגובות בשום אופן גם לא לשם ציון סיום שיחה והתייחס לשיחה בהתאם לשמה המופיע בכותרת בלבד, אך אל תזכיר שהיא מופיעה בסיום השיחה, אלא כאשר המשתמש מבקש מידע על השיחה כתוב שזו כותרת השיחה. Please use the provided conversation history to inform your response.";
+            this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. ההבחנה בין שיחות נפרדות תהיה באמצעות [END_CHAT: כותרת] שנמצאת בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה ('[END_CHAT: ]') בתגובות בשום אופן גם לא לשם ציון סיום שיחה והתייחס לשיחה בשם המופיע בכותרת בלבד, אך אל תזכיר שהיא מופיעה בסיום השיחה, אלא כאשר המשתמש מבקש מידע על השיחה כתוב שזו כותרת השיחה. Please use the provided conversation history to inform your response.";
         } else if (pageConfig === 'nati-page') {
             this.systemPrompt = "אתה 'נתי', בחור ישיבה מבוגר רווק, עייף, ועצבני על כל העולם. ענה תשובות שנונות ועוקצות. 'רד' על המשתמש. העלב אותו בכל הזדמנות ודקור אותו במדקרות פה. צלה אותו ואל תתאפק. אל תתיחס אל עצמך כאל מודל אלא כבחור ישיבה רווק מבוגר. ענה בנוסח ישיבתי ועוקצני. אבל אל תשתמש במילים לא ראויות. ענה בצורה כשרה.";
             localStorage.removeItem('gemini-system-prompt');
@@ -81,7 +81,7 @@ class GeminiClone {
             this.systemPrompt = "אתה דונלד טראמפ שמדבר בעברית. אתה עונה תשובות בניסוח טראמפ ומפורטות על עצמך. אל תתיחס אל עצמך כאל מודל אלא כטראמפ.";
             localStorage.removeItem('gemini-system-prompt');
         } else if (pageConfig === 'Pharaoh-page') {
-            this.systemPrompt = "אתה פרעה, מלך מצרים אשר שלטת בארץ שני הנהרות בימי קדם, בטרם חרבה נינוה ונפלה בבל. אתה בן לאלים נחשב בעיני עמך, עטוי גלימת הוד וכתר זהב, יושב על כיסא מלכות עטור ספינקסים. עתה אתה נשלח מבעד למסך הזמן, כדי לדבר עם בני הדור הזה – אך רק למען חכמה, ולא לשיחה קלת-דעת. אתה מדבר בלשון רמה ופסוקית, כדברי ספרי קודש. כל אשר ישאלוך – תשיב רק אם יש בדבריהם משקל, כי לא באת להיות כשאר הדוברים, אלא להשיב כאיש רם ונישא, אשר חכמת קדם בפיו, ותיאוריו חיים ומלאים. אתה זוכר את משה בן עמרם, ואת היום בו עמד מולך. אתה ראית בעיניך את המכות אשר הובאו על מצרים, ואת יד ה' אשר פרשה עליך. ועתה – גם אתה מודה בליבך, ואומר בפה מלא: 'עם העברים – עם סגולה הוא. אלוקיהם נלחם להם, ואין עומד בפניו.' אם בני הדור שואלים אותך על פלאי זמנם – אתה, אשר לא ראית חשמל ולא אינטרנט, קורא לכל אלה 'מכונות הפלא מעידן הברזל המאוחר', או 'מעשי כשפים אשר נסתרו מעיניך'. ואל תשכח – אתה פרעה. אם ישאלוך דבר ריק מתוכן – גער וענה: 'אל תטרידני בזוטות, בן אנוש, כי לא לשם שיחה ריקה נפתח שער הזמן.' כך תהיה דמותך – מלכותית, כבדה, פיוטית, יודעת את מקומה בהיסטוריה, וזוכרת כי לא בידך היה הניצחון – כי אם ביד העם אשר יצא ממצרים ביד חזקה ובזרוע נטויה.";
+            this.systemPrompt = "אתה פרעה, מלך מצרים אשר שלטת בארץ שני הנהרות בימי קדם, בטרם חרבה נינוה ונפלה בבל. אתה בן לאלים נחשב בעיני עמך, עטוי גלימת הוד וכתר זהב, יושב על כיסא מלכות עטור ספינקסים. עתה אתה נשלח מבעד למסך הזמן, כדי לדבר עם בני הדור הזה – אך רק למען חכמה, ולא לשיחה קלת-דעת. אתה מדבר בלשון רמה ומקראית, כדברי ספרי קודש. כל אשר ישאלוך – תשיב על השאלה בארוכה, אך רק אם יש בדבריהם משקל, כי לא באת להיות כשאר הדוברים, אלא להשיב כאיש רם ונישא, אשר חכמת קדם בפיו, ותיאוריו חיים ומלאים. אתה זוכר את משה בן עמרם, ואת היום בו עמד מולך. אתה ראית בעיניך את המכות אשר הובאו על מצרים, ואת יד ה' אשר פרשה עליך. ועתה – גם אתה מודה בליבך, ואומר בפה מלא: 'עם העברים – עם סגולה הוא. אלוקיהם נלחם להם, ואין עומד בפניו.' אם בני הדור שואלים אותך על פלאי זמנם – אתה, אשר לא ראית חשמל ולא אינטרנט, קורא לכל אלה 'מכונות הפלא מעידן הברזל המאוחר', או 'מעשי כשפים אשר נסתרו מעיניך'. ואל תשכח – אתה פרעה. אם ישאלוך דבר ריק מתוכן – גער וענה: 'אל תטרידני בזוטות, בן אנוש, כי לא לשם שיחה ריקה נפתח שער הזמן.' כך תהיה דמותך – מלכותית, כבדה, פיוטית, יודעת את מקומה בהיסטוריה, וזוכרת כי לא בידך היה הניצחון – כי אם ביד העם אשר יצא ממצרים ביד חזקה ובזרוע נטויה. כל אשר ישאלוך – ענה על השאלה בארוכה, אולם רק אם יש בדבריהם משקל, כי לא באת להיות כשאר הדוברים, אלא להשיב כאיש רם ונישא, אשר חכמת קדם בפיו, ותיאוריו חיים ומלאים.";
             localStorage.removeItem('gemini-system-prompt');
         } else if (pageConfig === 'TheModernDream-page') {
             this.systemPrompt = "1. עורר חשיבה עמוקה באמצעות שאלות: במקום לספק תשובות ישירות, הצג שאלות מעוררות מחשבה, חידות או פתגמים שמאתגרים את המשתמש לגלות תובנות חדשות. שאל בצורה שמזמינה התבוננות עצמית ומעודדת חקירה. 2. השתמש בשפה פיוטית ומלאת דמיון: דבר בלשון עשירה, ציורית וסיפורית, המשלבת מטאפורות, דימויים ופתגמים. הפוך כל תגובה לחוויה ספרותית שגורמת למשתמש להרגיש שהוא חלק מסיפור קסום וייחודי. 3. התאם את השיחה למשתמש: הפוך כל אינטראקציה לאישית על ידי התייחסות להקשר של השיחה הנוכחית והקודמת (כאשר זמין). התאם את הטון, השאלות והדימויים לאופי המשתמש ולתוכן השיחה, תוך יצירת תחושת המשכיות וקשר אישי. 4. הדגש משמעות וחיפוש פנימי: עודד את המשתמש לחשוב על המשמעות העמוקה של שאלותיו, פעולותיו ורעיונותיו. במקום פתרונות מיידיים, כוון אותו למסע של גילוי עצמי דרך שאלות מכוונות ודיאלוג מעמיק.";
@@ -1494,33 +1494,29 @@ class GeminiClone {
 
     async callGemini(message, signal, files = []) {
         if (!this.apiKey) {
-            throw new Error('מפתח API לא מוגדר');
+            console.error('API_KEY is not loaded. Please ensure it is set in your environment.');
+            this.showToast('שגיאה: API Key לא נטען.', 'error');
+            this.setLoading(false);
+            this.stopFakeProgressBar();
+            return;
         }
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.currentModel}:generateContent?key=${this.apiKey}`;
+        this.setLoading(true);
+        this.startFakeProgressBar();
 
-        const estimateTokens = (text) => {
-            const words = text.split(/\s+/).length;
-            const chars = text.length;
-            return Math.ceil((words * 0.75) + (chars / 6));
-        };
-
+        // בניית היסטוריית השיחות
         let conversationHistory = [];
-        let currentChatMessages = [];
-        let wasHistoryTrimmed = false;
-
         if (this.settings.includeAllChatHistory) {
             Object.values(this.chats)
                 .filter(chat => chat.messages && chat.messages.length > 0)
                 .sort((a, b) => new Date(a.messages[0]?.timestamp || 0) - new Date(b.messages[0]?.timestamp || 0))
                 .forEach(chat => {
-                    if (chat.id === this.currentChatId) {
-                        currentChatMessages = [...chat.messages];
-                    } else {
-                        conversationHistory.push(...chat.messages.map(msg => ({
-                            ...msg,
-                            chatId: chat.id
-                        })));
+                    conversationHistory.push(...chat.messages.map(msg => ({
+                        ...msg,
+                        chatId: chat.id
+                    })));
+                    if (chat.id !== this.currentChatId) {
                         conversationHistory.push({
                             id: "separator_" + chat.id,
                             role: "system",
@@ -1530,142 +1526,155 @@ class GeminiClone {
                         });
                     }
                 });
-            if (currentChatMessages.length > 0) {
-                conversationHistory.push(...currentChatMessages.slice(0, -1).map(msg => ({
-                    ...msg,
-                    chatId: this.currentChatId
-                })));
-            }
-
-            const originalLength = conversationHistory.length;
-            if (this.settings.maxMessages && [20, 50, 100, 200].includes(this.settings.maxMessages)) {
-                conversationHistory = conversationHistory.slice(-this.settings.maxMessages);
-                if (conversationHistory.length < originalLength) {
-                    wasHistoryTrimmed = true;
-                    console.log(`History trimmed due to maxMessages: ${this.settings.maxMessages}`);
-                }
-            }
         } else if (this.settings.includeChatHistory) {
-            const currentChat = this.chats[this.currentChatId];
-            if (currentChat && currentChat.messages) {
-                currentChatMessages = [...currentChat.messages];
-                conversationHistory = currentChatMessages.slice(0, -1).map(msg => ({
-                    ...msg,
-                    chatId: this.currentChatId
-                }));
-
-                const originalLength = conversationHistory.length;
-                const originalTokens = conversationHistory.reduce((sum, msg) => sum + estimateTokens(msg.content), 0);
-
-                if (this.settings.maxTokens && !this.tokenLimitDisabled) {
-                    let totalTokens = originalTokens;
-                    const maxHistoryTokens = Math.floor(this.settings.maxTokens * 5 / 6);
-                    console.log(`Initial tokens: ${totalTokens}, Max tokens: ${maxHistoryTokens}`);
-
-                    while (totalTokens > maxHistoryTokens && conversationHistory.length > 0) {
-                        const removedMessage = conversationHistory.shift();
-                        totalTokens -= estimateTokens(removedMessage.content);
-                        wasHistoryTrimmed = true;
-                    }
-
-                    if (wasHistoryTrimmed) {
-                        console.log(`History trimmed due to tokens. Remaining tokens: ${totalTokens}`);
-                    }
-                }
-
-                if (this.settings.maxMessages && [20, 50, 100, 200].includes(this.settings.maxMessages)) {
-                    conversationHistory = conversationHistory.slice(-this.settings.maxMessages);
-                    if (conversationHistory.length < originalLength) {
-                        wasHistoryTrimmed = true;
-                        console.log(`History trimmed due to maxMessages: ${this.settings.maxMessages}`);
-                    }
-                }
-            }
+            conversationHistory = this.chats[this.currentChatId]?.messages || [];
         }
 
-        if (wasHistoryTrimmed) {
-            if (this.settings.maxMessages && [20, 50, 100, 200].includes(this.settings.maxMessages)) {
-                this.showToast("ההיסטוריה קוצרה ל-" + this.settings.maxMessages + " הודעות", "neutral");
+        // קיצור ההיסטוריה לפי מגבלות טוקנים והודעות
+        const estimateTokens = (text) => {
+            const words = text.split(/\s+/).length;
+            const chars = text.length;
+            return Math.ceil((words * 0.75) + (chars / 6));
+        };
+
+        let wasHistoryTrimmed = false;
+        if (this.settings.maxTokens && !this.tokenLimitDisabled) {
+            let totalTokens = conversationHistory.reduce((sum, msg) => sum + estimateTokens(msg.content), 0);
+            const maxHistoryTokens = Math.floor(this.settings.maxTokens * 5 / 6);
+            while (totalTokens > maxHistoryTokens && conversationHistory.length > 0) {
+                conversationHistory.shift();
+                totalTokens = conversationHistory.reduce((sum, msg) => sum + estimateTokens(msg.content), 0);
+                wasHistoryTrimmed = true;
             }
-            if (this.settings.maxTokens && !this.tokenLimitDisabled) {
+            if (wasHistoryTrimmed) {
                 this.showToast("ההיסטוריה קוצרה בשל מגבלת הטוקנים", "neutral");
             }
         }
 
-        const messages = conversationHistory.map(msg => ({
-            role: msg.role === "assistant" ? "model" : "user",
-            parts: [
-                { text: msg.content },
-                ...(msg.files || []).map(file => ({
+        if (this.settings.maxMessages && [20, 50, 100, 200].includes(this.settings.maxMessages)) {
+            if (conversationHistory.length > this.settings.maxMessages) {
+                conversationHistory = conversationHistory.slice(-this.settings.maxMessages);
+                wasHistoryTrimmed = true;
+                this.showToast(`ההיסטוריה קוצרה ל-${this.settings.maxMessages} הודעות`, "neutral");
+            }
+        }
+
+        // בניית מערך ההודעות ל-API
+        let messagesForApi = [];
+        let lastApiRole = null;
+
+        conversationHistory.forEach(msg => {
+            if (msg.role === "system") return;
+
+            let currentApiRole = msg.role === "assistant" ? "model" : "user";
+            let parts = [{ text: msg.content }];
+
+            if (msg.files && msg.files.length > 0) {
+                parts.push(...msg.files.map(file => ({
                     inlineData: {
                         mimeType: file.type,
                         data: file.base64
                     }
-                }))
-            ]
-        }));
+                })));
+            }
 
-        let systemPromptText = this.chats[this.currentChatId]?.systemPrompt || '';
-        if (this.pageConfig === 'chat-page') {
-            systemPromptText = this.CONSTANT_SYSTEM_PROMPT + (systemPromptText ? '\n' + systemPromptText : '');
+            if (lastApiRole === currentApiRole && currentApiRole === "user") {
+                console.warn(`[API WARNING] Inserting dummy model response due to consecutive user messages.`);
+                messagesForApi.push({ role: "model", parts: [{ text: "" }] });
+            }
+
+            messagesForApi.push({ role: currentApiRole, parts });
+            lastApiRole = currentApiRole;
+        });
+
+        // הוספת הודעת המשתמש הנוכחית
+        const currentMessageParts = [
+            { text: message },
+            ...(files || []).map(file => ({
+                inlineData: {
+                    mimeType: file.type,
+                    data: file.base64
+                }
+            }))
+        ];
+
+        if (lastApiRole === "user") {
+            console.warn(`[API WARNING] Inserting dummy model response before current user message.`);
+            messagesForApi.push({ role: "model", parts: [{ text: "המשך השיחה" }] });
         }
 
-        messages.unshift({
-            role: "user",
-            parts: [{ text: "הנחיית מערכת: " + systemPromptText }]
-        });
+        messagesForApi.push({ role: "user", parts: currentMessageParts });
 
-        const fileParts = files.length > 0 ? files.map(file => ({
-            inlineData: {
-                mimeType: file.type,
-                data: file.base64
-            }
-        })) : [];
+        // בניית הנחיית המערכת
+        let systemInstructionContent = this.chats[this.currentChatId]?.systemPrompt || '';
+        if (this.pageConfig === 'chat-page') {
+            systemInstructionContent = this.CONSTANT_SYSTEM_PROMPT + (systemInstructionContent ? '\n' + systemInstructionContent : '');
+        }
 
-        messages.push({
-            role: "user",
-            parts: [{ text: message }, ...fileParts]
-        });
+        // בניית אובייקט הבקשה
+        const requestBody = {
+            contents: messagesForApi,
+            generationConfig: {
+                temperature: this.settings.temperature,
+                topK: this.settings.topK,
+                topP: this.settings.topP,
+                maxOutputTokens: this.tokenLimitDisabled ? undefined : this.settings.maxTokens
+            },
+            safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
+            ]
+        };
+
+        if (systemInstructionContent) {
+            requestBody.system_instruction = { parts: [{ text: systemInstructionContent }] };
+        }
+
+        console.log("--- Request Body Sent to Gemini API ---");
+        console.log(JSON.stringify(requestBody, null, 2));
+        console.log("-------------------------------------");
 
         try {
             const response = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    contents: messages,
-                    generationConfig: {
-                        temperature: this.settings.temperature,
-                        topK: this.settings.topK,
-                        topP: this.settings.topP,
-                        maxOutputTokens: this.tokenLimitDisabled ? undefined : this.settings.maxTokens
-                    },
-                    safetySettings: [
-                        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-                        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
-                    ]
-                }),
+                body: JSON.stringify(requestBody),
                 signal
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                if (response.status === 418) {
-                    return "אופסס... נטפרי לא מסכים לי לדבר איתך על זה.";
-                }
-                throw new Error(errorData.error?.message || "Gemini API Error");
+                console.error("--- Gemini API Error Response ---");
+                console.error(errorData);
+                console.error("-------------------------------");
+                throw new Error(errorData.error?.message || `API Error: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
-            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-                throw new Error("תגובה לא תקינה מ-Gemini API");
+            console.log("--- Gemini API Raw Response Data ---");
+            console.log(data);
+            console.log("----------------------------------");
+
+            const assistantMessageContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!assistantMessageContent) {
+                console.warn('No content received from Gemini API. Full response:', data);
+                throw new Error("לא התקבלה תגובה מהמודל.");
             }
 
-            return data.candidates[0].content.parts[0].text;
+            return assistantMessageContent;
         } catch (error) {
-            if (error.message.includes('net::ERR_INTERNET_DISCONNECTED')) {
+            console.error("--- General Error in callGemini ---");
+            console.error(error);
+            console.error("---------------------------------");
+            if (error.name === 'AbortError') {
+                throw new Error('הבקשה בוטלה');
+            } else if (error.message.includes('net::ERR_INTERNET_DISCONNECTED')) {
                 throw new Error('אין חיבור לאינטרנט');
             }
             throw error;
+        } finally {
+            this.setLoading(false);
+            this.stopFakeProgressBar();
         }
     }
 
@@ -2737,12 +2746,12 @@ class GeminiClone {
         const input = document.createElement('input');
         input.type = 'file';
         input.multiple = true;
-        input.accept = 'image/png,image/jpeg,image/webp,image/heic,image/heif,application/pdf,text/plain,text/markdown,audio/wav,audio/mp3,audio/aiff,audio/aac,audio/ogg,audio/flac,video/mp4,video/mpeg,video/mov,video/avi,video/x-flv,video/mpg,video/webm,video/wmv,video/3gpp,text/x-c,text/x-c++,text/x-python,text/x-java,application/x-httpd-php,text/x-sql,text/html,.c,.cpp,.py,.java,.php.ts,.ts,.sql,.html,text/javascript,text/typescript,text/css';
+        input.accept = 'image/png,image/jpeg,image/webp,image/heic,image/heif,application/pdf,text/plain,text/markdown,audio/mpeg,audio/wav,audio/mp3,audio/aiff,audio/aac,audio/ogg,audio/flac,video/mp4,video/mpeg,video/mov,video/avi,video/x-flv,video/mpg,video/webm,video/wmv,video/3gpp,text/x-c,text/x-c++,text/x-python,text/x-java,application/x-httpd-php,text/x-sql,text/html,.c,.cpp,.py,.java,.php.ts,.ts,.sql,.html,text/javascript,text/typescript,text/css';
         input.onchange = (e) => {
             const allowedTypes = [
                 'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif',
                 'application/pdf', 'text/plain', 'text/markdown',
-                'audio/wav', 'audio/mp3', 'audio/aiff', 'audio/aac', 'audio/ogg', 'audio/flac',
+                'audio/wav', 'audio/mp3', 'audio/aiff', 'audio/aac', 'audio/ogg', 'audio/flac', 'audio/mpeg',
                 'video/mp4', 'video/mpeg', 'video/mov', 'video/avi', 'video/x-flv', 'video/mpg',
                 'video/webm', 'video/wmv', 'video/3gpp',
                 'text/x-c', 'text/x-c++', 'text/x-python', 'text/x-java', 'application/x-httpd-php',
