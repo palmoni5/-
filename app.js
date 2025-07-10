@@ -73,7 +73,7 @@ class GeminiClone {
     initializePageSpecificSettings() {
         const pageConfig = this.pageConfig;
         if (pageConfig === 'chat-page') {
-            this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. ההבחנה בין שיחות נפרדות תהיה באמצעות [END_CHAT: כותרת] שנמצאת בסיום כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון סיום השיחה, ללא הקידומת. אל תזכיר סימוני סיום שיחה ('[END_CHAT: ]') בתגובות בשום אופן גם לא לשם ציון סיום שיחה והתייחס לשיחה בשם המופיע בכותרת בלבד, אך אל תזכיר שהיא מופיעה בסיום השיחה, אלא כאשר המשתמש מבקש מידע על השיחה כתוב שזו כותרת השיחה. Please use the provided conversation history to inform your response.";
+            this.CONSTANT_SYSTEM_PROMPT = "שמור תמיד על רצף בשיחה, ובכל תשובה קח בחשבון את כל השיחה מתחילתה. ענה בעברית. אם יש לך גישה להיסטוריה, גש לשיחה עם המידע המעובד מכל ההיסטוריה. ההבחנה בין שיחות נפרדות תהיה באמצעות [START_CHAT: כותרת] שנמצאת בתחילת כל שיחה, כאשר כותרת השיחה היא הטקסט בתוך סוגריים של סימון תחילת השיחה, ללא הקידומת. אל תזכיר סימוני תחילת שיחה ('[START_CHAT: ]') בתגובות בשום אופן גם לא לשם ציון סיום שיחה והתייחס לשיחה בשם המופיע בכותרת בלבד, אך אל תזכיר שהיא מופיעה בסיום השיחה, אלא כאשר המשתמש מבקש מידע על השיחה כתוב שזו כותרת השיחה. Please use the provided conversation history to inform your response.";
         } else if (pageConfig === 'nati-page') {
             this.systemPrompt = "אתה 'נתי', בחור ישיבה מבוגר רווק, עייף, ועצבני על כל העולם. ענה תשובות שנונות ועוקצות. 'רד' על המשתמש. העלב אותו בכל הזדמנות ודקור אותו במדקרות פה. צלה אותו ואל תתאפק. אל תתיחס אל עצמך כאל מודל אלא כבחור ישיבה רווק מבוגר. ענה בנוסח ישיבתי ועוקצני. אבל אל תשתמש במילים לא ראויות. ענה בצורה כשרה.";
             localStorage.removeItem('gemini-system-prompt');
@@ -1512,22 +1512,57 @@ class GeminiClone {
                 .filter(chat => chat.messages && chat.messages.length > 0)
                 .sort((a, b) => new Date(a.messages[0]?.timestamp || 0) - new Date(b.messages[0]?.timestamp || 0))
                 .forEach(chat => {
+                    // הוספת סימון תחילת שיחה לפני כל שיחה (כולל הנוכחית)
+                    conversationHistory.push({
+                        id: "separator_" + chat.id,
+                        role: "system",
+                        content: "[START_CHAT: " + (chat.title || "צ'אט ללא כותרת") + "]",
+                        timestamp: chat.messages[0]?.timestamp || new Date().toISOString(),
+                        chatId: chat.id
+                    });
+                    
                     conversationHistory.push(...chat.messages.map(msg => ({
                         ...msg,
                         chatId: chat.id
                     })));
-                    if (chat.id !== this.currentChatId) {
-                        conversationHistory.push({
-                            id: "separator_" + chat.id,
-                            role: "system",
-                            content: "[END_CHAT: " + (chat.title || "צ'אט ללא כותרת") + "]",
-                            timestamp: chat.messages[chat.messages.length - 1]?.timestamp || new Date().toISOString(),
-                            chatId: chat.id
-                        });
-                    }
                 });
         } else if (this.settings.includeChatHistory) {
-            conversationHistory = this.chats[this.currentChatId]?.messages || [];
+            // גם לשיחה נוכחית בלבד, הוסף סימון התחלה
+            const currentChat = this.chats[this.currentChatId];
+            if (currentChat && currentChat.messages && currentChat.messages.length > 0) {
+                conversationHistory.push({
+                    id: "separator_" + this.currentChatId,
+                    role: "system",
+                    content: "[START_CHAT: " + (currentChat.title || "צ'אט ללא כותרת") + "]",
+                    timestamp: currentChat.messages[0]?.timestamp || new Date().toISOString(),
+                    chatId: this.currentChatId
+                });
+            }
+            conversationHistory.push(...(this.chats[this.currentChatId]?.messages || []));
+        }
+
+        // בניית הנחיית המערכת
+        let systemInstructionContent = this.chats[this.currentChatId]?.systemPrompt || '';
+        if (this.pageConfig === 'chat-page') {
+            systemInstructionContent = this.CONSTANT_SYSTEM_PROMPT + (systemInstructionContent ? '\n' + systemInstructionContent : '');
+        }
+
+        // הוספת הנחיות המערכת בתחילת ההיסטוריה (רק כאשר כולל היסטוריה מצ'אטים מרובים)
+        if (systemInstructionContent && this.settings.includeAllChatHistory && conversationHistory.length > 0) {
+            conversationHistory.unshift({
+                id: "current_system_prompt",
+                role: "user",
+                content: "[הנחיות מערכת נוכחיות]: " + systemInstructionContent,
+                timestamp: new Date().toISOString(),
+                chatId: this.currentChatId
+            });
+            conversationHistory.splice(1, 0, {
+                id: "current_system_response",
+                role: "assistant", 
+                content: "הבנתי את ההנחיות החדשות ואפעל לפיהן.",
+                timestamp: new Date().toISOString(),
+                chatId: this.currentChatId
+            });
         }
 
         // קיצור ההיסטוריה לפי מגבלות טוקנים והודעות
@@ -1542,7 +1577,17 @@ class GeminiClone {
             let totalTokens = conversationHistory.reduce((sum, msg) => sum + estimateTokens(msg.content), 0);
             const maxHistoryTokens = Math.floor(this.settings.maxTokens * 5 / 6);
             while (totalTokens > maxHistoryTokens && conversationHistory.length > 0) {
-                conversationHistory.shift();
+                // מחיקת הודעות מההיסטוריה אבל שמירה על הנחיות המערכת הנוכחיות
+                let removed = false;
+                for (let i = conversationHistory.length - 1; i >= 0; i--) {
+                    if (conversationHistory[i].id !== "current_system_prompt" && 
+                        conversationHistory[i].id !== "current_system_response") {
+                        conversationHistory.splice(i, 1);
+                        removed = true;
+                        break;
+                    }
+                }
+                if (!removed) break; // למנוע לולאה אינסופית
                 totalTokens = conversationHistory.reduce((sum, msg) => sum + estimateTokens(msg.content), 0);
                 wasHistoryTrimmed = true;
             }
@@ -1553,7 +1598,16 @@ class GeminiClone {
 
         if (this.settings.maxMessages && [20, 50, 100, 200].includes(this.settings.maxMessages)) {
             if (conversationHistory.length > this.settings.maxMessages) {
-                conversationHistory = conversationHistory.slice(-this.settings.maxMessages);
+                // שמירה על הנחיות המערכת בעת קיצור
+                const systemPrompt = conversationHistory.find(msg => msg.id === "current_system_prompt");
+                const systemResponse = conversationHistory.find(msg => msg.id === "current_system_response");
+                
+                conversationHistory = conversationHistory.slice(-(this.settings.maxMessages - (systemPrompt ? 2 : 0)));
+                
+                if (systemPrompt && systemResponse) {
+                    conversationHistory.unshift(systemPrompt);
+                    conversationHistory.splice(1, 0, systemResponse);
+                }
                 wasHistoryTrimmed = true;
                 this.showToast(`ההיסטוריה קוצרה ל-${this.settings.maxMessages} הודעות`, "neutral");
             }
@@ -1564,7 +1618,11 @@ class GeminiClone {
         let lastApiRole = null;
 
         conversationHistory.forEach(msg => {
-            if (msg.role === "system") return;
+            // דלג על הודעות system (למעט הנחיות המערכת החדשות וסימוני תחילת שיחה)
+            if (msg.role === "system" && 
+                msg.id !== "current_system_prompt" && 
+                msg.id !== "current_system_response" && 
+                !msg.id.startsWith("separator_")) return;
 
             let currentApiRole = msg.role === "assistant" ? "model" : "user";
             let parts = [{ text: msg.content }];
@@ -1587,28 +1645,30 @@ class GeminiClone {
             lastApiRole = currentApiRole;
         });
 
-        // הוספת הודעת המשתמש הנוכחית
-        const currentMessageParts = [
-            { text: message },
-            ...(files || []).map(file => ({
-                inlineData: {
-                    mimeType: file.type,
-                    data: file.base64
-                }
-            }))
-        ];
+        // בדיקה אם ההודעה הנוכחית כבר קיימת בהיסטוריה
+        const lastMessageInHistory = conversationHistory[conversationHistory.length - 1];
+        const isCurrentMessageInHistory = lastMessageInHistory && 
+                                        lastMessageInHistory.role === "user" && 
+                                        lastMessageInHistory.content === message;
 
-        if (lastApiRole === "user") {
-            console.warn(`[API WARNING] Inserting dummy model response before current user message.`);
-            messagesForApi.push({ role: "model", parts: [{ text: "המשך השיחה" }] });
-        }
+        // הוספת הודעת המשתמש הנוכחית רק אם היא לא קיימת בהיסטוריה
+        if (!isCurrentMessageInHistory) {
+            const currentMessageParts = [
+                { text: message },
+                ...(files || []).map(file => ({
+                    inlineData: {
+                        mimeType: file.type,
+                        data: file.base64
+                    }
+                }))
+            ];
 
-        messagesForApi.push({ role: "user", parts: currentMessageParts });
+            if (lastApiRole === "user") {
+                console.warn(`[API WARNING] Inserting dummy model response before current user message.`);
+                messagesForApi.push({ role: "model", parts: [{ text: "המשך השיחה" }] });
+            }
 
-        // בניית הנחיית המערכת
-        let systemInstructionContent = this.chats[this.currentChatId]?.systemPrompt || '';
-        if (this.pageConfig === 'chat-page') {
-            systemInstructionContent = this.CONSTANT_SYSTEM_PROMPT + (systemInstructionContent ? '\n' + systemInstructionContent : '');
+            messagesForApi.push({ role: "user", parts: currentMessageParts });
         }
 
         // בניית אובייקט הבקשה
@@ -1626,6 +1686,7 @@ class GeminiClone {
             ]
         };
 
+        // הוספת הנחיית המערכת לבקשה
         if (systemInstructionContent) {
             requestBody.system_instruction = { parts: [{ text: systemInstructionContent }] };
         }
