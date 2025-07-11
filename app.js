@@ -743,7 +743,6 @@ class GeminiClone {
         const promptLower = systemPrompt.toLowerCase();
         for (const [keyword, { iconPath, label }] of Object.entries(this.iconMap)) {
             if (promptLower.includes(keyword.toLowerCase())) {
-                console.log(`Match found for keyword: ${keyword}, iconPath: ${iconPath}`);
                 return {
                     iconHtml: `<img src="${iconPath}" alt="${keyword}" class="prompt-icon" style="width: 18px; height: 18px; margin-left: 5px; vertical-align: middle;">`,
                     label: label
