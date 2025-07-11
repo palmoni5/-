@@ -1,12 +1,12 @@
 class GeminiClone {
     constructor() {
         this.iconMap = {
-            'בחור ישיבה מבוגר': { iconPath: '../nati/nati.jpg', label: 'נתי', likeMessage: 'סוף סוף אתה מדבר לעניין...', dislikeMessage: 'אתה לא מתבייש? לדסלייק אותי???', feedbackAsAlert: true },
-            'טראמפ': { iconPath: '../trump/trump.jpg', label: 'טראמפ', likeMessage: 'תודה! אני תמיד צודק...', dislikeMessage: 'פייק ניוז! לגמרי פייק ניוז!', feedbackAsAlert: false },
-            'פרעה': { iconPath: '../Pharaoh/Pharaoh.jpg', label: 'פרעה', likeMessage: 'כמים הפנים לפנים...', dislikeMessage: 'אם זאת תגובתך...', feedbackAsAlert: false },
-            'עורר חשיבה עמוקה באמצעות': { iconPath: '../TheModernDream/TheModernDream.jpg', label: 'Gemini', likeMessage: 'אתה באמת רואה...', dislikeMessage: 'האם יש משהו שחמק...', feedbackAsAlert: false },
-            'קוסמיות ומיתיות כדי להפוך תשובות פשוטות': { iconPath: '../Anara/Anara.jpg', label: 'אנארה', likeMessage: 'תודה, חביבי!...', dislikeMessage: 'הרוח משתנה...', feedbackAsAlert: false },
-            'ספרן הידען הנצחי': { iconPath: '../TheWiseLibrarian/TheWiseLibrarian.jpg', label: 'הספרן החכם', likeMessage: 'תודה! אני שמח...', dislikeMessage: 'שאיפתי היא לדייק...', feedbackAsAlert: false }
+            'בחור ישיבה מבוגר': { iconPath: '../nati/nati.jpg', label: 'נתי', likeMessage: ' סוף סוף אתה מדבר לעניין ויודע את מי להעריך...', dislikeMessage: 'אתה לא מתבייש? לדסלייק אותי??? מי אתה בכלל???', feedbackAsAlert: true },
+            'טראמפ': { iconPath: '../trump/trump.jpg', label: 'טראמפ', likeMessage: 'תודה! אני תמיד צודק, כולם יודעים את זה.', dislikeMessage: 'פייק ניוז! לגמרי פייק ניוז! הם פשוט מקנאים.', feedbackAsAlert: false },
+            'פרעה': { iconPath: '../Pharaoh/Pharaoh.jpg', label: 'פרעה', likeMessage: 'כמים הפנים לפנים – כן תגובתך נעמה לנפשי.', dislikeMessage: 'אם זאת תגובתך, מוטב כי תשתוק ולא תוסיף חטא על פשע.', feedbackAsAlert: false },
+            'עורר חשיבה עמוקה באמצעות': { iconPath: '../TheModernDream/TheModernDream.jpg', label: 'Gemini', likeMessage: 'אתה באמת רואה את מה שמעבר? תודה על ההבנה העמוקה.', dislikeMessage: 'האם יש משהו שחמק ממני? אולי נוכל לגלות זאת יחד, מעבר למילים.', feedbackAsAlert: false },
+            'קוסמיות ומיתיות כדי להפוך תשובות פשוטות': { iconPath: '../Anara/Anara.jpg', label: 'אנארה', likeMessage: 'תודה, חביבי! כוכב חדש זורח. רוצה סיפור נוסף?', dislikeMessage: 'הרוח משתנה... ספר לי מה חסר, ואשזור חוכמה חדשה.', feedbackAsAlert: false },
+            'ספרן הידען הנצחי': { iconPath: '../TheWiseLibrarian/TheWiseLibrarian.jpg', label: 'הספרן החכם', likeMessage: 'תודה! אני שמח שהארתי את דרכך.', dislikeMessage: 'שאיפתי היא לדייק. אשתדל להשתפר.', feedbackAsAlert: false }
         };
         this.allowedFileTypes = [
             'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif',
@@ -1506,15 +1506,12 @@ class GeminiClone {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.currentModel}:generateContent?key=${this.apiKey}`;
         this.setLoading(true);
         this.startFakeProgressBar();
-
-        // בניית היסטוריית השיחות
         let conversationHistory = [];
         if (this.settings.includeAllChatHistory) {
             Object.values(this.chats)
                 .filter(chat => chat.messages && chat.messages.length > 0)
                 .sort((a, b) => new Date(a.messages[0]?.timestamp || 0) - new Date(b.messages[0]?.timestamp || 0))
                 .forEach(chat => {
-                    // הוספת סימון תחילת שיחה לפני כל שיחה (כולל הנוכחית)
                     conversationHistory.push({
                         id: "separator_" + chat.id,
                         role: "system",
@@ -1529,7 +1526,6 @@ class GeminiClone {
                     })));
                 });
         } else if (this.settings.includeChatHistory) {
-            // גם לשיחה נוכחית בלבד, הוסף סימון התחלה
             const currentChat = this.chats[this.currentChatId];
             if (currentChat && currentChat.messages && currentChat.messages.length > 0) {
                 conversationHistory.push({
@@ -1542,14 +1538,10 @@ class GeminiClone {
             }
             conversationHistory.push(...(this.chats[this.currentChatId]?.messages || []));
         }
-
-        // בניית הנחיית המערכת
         let systemInstructionContent = this.chats[this.currentChatId]?.systemPrompt || '';
         if (this.pageConfig === 'chat-page') {
             systemInstructionContent = this.CONSTANT_SYSTEM_PROMPT + (systemInstructionContent ? '\n' + systemInstructionContent : '');
         }
-
-        // הוספת הנחיות המערכת בתחילת ההיסטוריה (רק כאשר כולל היסטוריה מצ'אטים מרובים)
         if (systemInstructionContent && this.settings.includeAllChatHistory && conversationHistory.length > 0) {
             conversationHistory.unshift({
                 id: "current_system_prompt",
@@ -1566,20 +1558,16 @@ class GeminiClone {
                 chatId: this.currentChatId
             });
         }
-
-        // קיצור ההיסטוריה לפי מגבלות טוקנים והודעות
         const estimateTokens = (text) => {
             const words = text.split(/\s+/).length;
             const chars = text.length;
             return Math.ceil((words * 0.75) + (chars / 6));
         };
-
         let wasHistoryTrimmed = false;
         if (this.settings.maxTokens && !this.tokenLimitDisabled) {
             let totalTokens = conversationHistory.reduce((sum, msg) => sum + estimateTokens(msg.content), 0);
             const maxHistoryTokens = Math.floor(this.settings.maxTokens * 5 / 6);
             while (totalTokens > maxHistoryTokens && conversationHistory.length > 0) {
-                // מחיקת הודעות מההיסטוריה אבל שמירה על הנחיות המערכת הנוכחיות
                 let removed = false;
                 for (let i = conversationHistory.length - 1; i >= 0; i--) {
                     if (conversationHistory[i].id !== "current_system_prompt" && 
@@ -1597,15 +1585,11 @@ class GeminiClone {
                 this.showToast("ההיסטוריה קוצרה בשל מגבלת הטוקנים", "neutral");
             }
         }
-
         if (this.settings.maxMessages && [20, 50, 100, 200].includes(this.settings.maxMessages)) {
             if (conversationHistory.length > this.settings.maxMessages) {
-                // שמירה על הנחיות המערכת בעת קיצור
                 const systemPrompt = conversationHistory.find(msg => msg.id === "current_system_prompt");
                 const systemResponse = conversationHistory.find(msg => msg.id === "current_system_response");
-                
                 conversationHistory = conversationHistory.slice(-(this.settings.maxMessages - (systemPrompt ? 2 : 0)));
-                
                 if (systemPrompt && systemResponse) {
                     conversationHistory.unshift(systemPrompt);
                     conversationHistory.splice(1, 0, systemResponse);
@@ -1614,21 +1598,15 @@ class GeminiClone {
                 this.showToast(`ההיסטוריה קוצרה ל-${this.settings.maxMessages} הודעות`, "neutral");
             }
         }
-
-        // בניית מערך ההודעות ל-API
         let messagesForApi = [];
         let lastApiRole = null;
-
         conversationHistory.forEach(msg => {
-            // דלג על הודעות system (למעט הנחיות המערכת החדשות וסימוני תחילת שיחה)
             if (msg.role === "system" && 
                 msg.id !== "current_system_prompt" && 
                 msg.id !== "current_system_response" && 
                 !msg.id.startsWith("separator_")) return;
-
             let currentApiRole = msg.role === "assistant" ? "model" : "user";
             let parts = [{ text: msg.content }];
-
             if (msg.files && msg.files.length > 0) {
                 parts.push(...msg.files.map(file => ({
                     inlineData: {
@@ -1637,23 +1615,17 @@ class GeminiClone {
                     }
                 })));
             }
-
             if (lastApiRole === currentApiRole && currentApiRole === "user") {
                 console.warn(`[API WARNING] Inserting dummy model response due to consecutive user messages.`);
                 messagesForApi.push({ role: "model", parts: [{ text: "" }] });
             }
-
             messagesForApi.push({ role: currentApiRole, parts });
             lastApiRole = currentApiRole;
         });
-
-        // בדיקה אם ההודעה הנוכחית כבר קיימת בהיסטוריה
         const lastMessageInHistory = conversationHistory[conversationHistory.length - 1];
         const isCurrentMessageInHistory = lastMessageInHistory && 
                                         lastMessageInHistory.role === "user" && 
                                         lastMessageInHistory.content === message;
-
-        // הוספת הודעת המשתמש הנוכחית רק אם היא לא קיימת בהיסטוריה
         if (!isCurrentMessageInHistory) {
             const currentMessageParts = [
                 { text: message },
@@ -1664,16 +1636,12 @@ class GeminiClone {
                     }
                 }))
             ];
-
             if (lastApiRole === "user") {
                 console.warn(`[API WARNING] Inserting dummy model response before current user message.`);
                 messagesForApi.push({ role: "model", parts: [{ text: "המשך השיחה" }] });
             }
-
             messagesForApi.push({ role: "user", parts: currentMessageParts });
         }
-
-        // בניית אובייקט הבקשה
         const requestBody = {
             contents: messagesForApi,
             generationConfig: {
@@ -1687,16 +1655,9 @@ class GeminiClone {
                 { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
             ]
         };
-
-        // הוספת הנחיית המערכת לבקשה
         if (systemInstructionContent) {
             requestBody.system_instruction = { parts: [{ text: systemInstructionContent }] };
         }
-
-        console.log("--- Request Body Sent to Gemini API ---");
-        console.log(JSON.stringify(requestBody, null, 2));
-        console.log("-------------------------------------");
-
         try {
             const response = await fetch(url, {
                 method: "POST",
@@ -1704,7 +1665,6 @@ class GeminiClone {
                 body: JSON.stringify(requestBody),
                 signal
             });
-
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("--- Gemini API Error Response ---");
@@ -1712,18 +1672,12 @@ class GeminiClone {
                 console.error("-------------------------------");
                 throw new Error(errorData.error?.message || `API Error: ${response.status} ${response.statusText}`);
             }
-
             const data = await response.json();
-            console.log("--- Gemini API Raw Response Data ---");
-            console.log(data);
-            console.log("----------------------------------");
-
             const assistantMessageContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
             if (!assistantMessageContent) {
                 console.warn('No content received from Gemini API. Full response:', data);
                 throw new Error("לא התקבלה תגובה מהמודל.");
             }
-
             return assistantMessageContent;
         } catch (error) {
             console.error("--- General Error in callGemini ---");
@@ -1740,7 +1694,6 @@ class GeminiClone {
             this.stopFakeProgressBar();
         }
     }
-
     abortGeneration() {
         if (this.abortController) {
             this.abortController.abort();
