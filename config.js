@@ -1,1 +1,1 @@
-window.apiAddressToUse = 'generativelanguage';
+window.apiAddressToUse = 'cloudaicompanion';
