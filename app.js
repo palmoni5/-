@@ -1671,6 +1671,7 @@ class GeminiClone {
         if (systemInstructionContent) {
             requestBody.system_instruction = { parts: [{ text: systemInstructionContent }] };
         }
+		console.log('Gemini API Request:', JSON.stringify(requestBody, null, 2));
         try {
             const response = await fetch(url, {
                 method: "POST",
